@@ -1,0 +1,48 @@
+#
+# 	Part of kde-service-menu-reimage Version 2.4
+# 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
+#
+# 	This program is free software: you can redistribute it and/or modify
+# 	it under the terms of the GNU General Public License as published by
+# 	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#
+# 	This program is distributed in the hope that it will be useful,
+# 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+# 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# 	GNU General Public License for more details.
+#
+# 	You should have received a copy of the GNU General Public License
+# 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+[Desktop Entry]
+Actions=interpolate;horizontal_disassemble_jpg;horizontal_disassemble_png
+MimeType=video/*
+X-KDE-Priority=TopLevel
+Name=ReVideo tools service menu
+ServiceTypes=KonqPopupMenu/Plugin,video/*
+TryExec=revideo-kdialog
+Type=Service
+X-KDE-Submenu=Tools
+X-KDE-Submenu[fr]=Outils
+
+################################################################################
+
+[Desktop Action interpolate]
+Exec=revideo-kdialog interpolate %F
+Icon=interpolate
+Name=Interpolate
+Name[fr]=Interpoler
+
+[Desktop Action horizontal_disassemble_jpg]
+Exec=revideo-kdialog horizontal_disassemble jpg %F
+Icon=viewimage
+Name=Generate JPGs
+Name[fr]=Générer des JPGs
+
+[Desktop Action horizontal_disassemble_png]
+Exec=revideo-kdialog horizontal_disassemble png %F
+Icon=viewimage
+Name=Generate PNGs
+Name[fr]=Générer des PNGs

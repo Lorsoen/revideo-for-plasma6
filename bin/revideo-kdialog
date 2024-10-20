@@ -1,0 +1,351 @@
+#! /bin/bash
+#
+# 	Part of kde-service-menu-revideo Version 1.0
+# 	Copyright (C) 2024
+#
+# 	This program is free software: you can redistribute it and/or modify
+# 	it under the terms of the GNU General Public License as published by
+# 	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#
+# 	This program is distributed in the hope that it will be useful,
+# 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+# 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# 	GNU General Public License for more details.
+#
+# 	You should have received a copy of the GNU General Public License
+# 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+#### languages strings messages #################
+# Syntax for strings name is: msg_[$format]_$window_[$section]
+# For languages as sr@Latn use srLatn
+
+new_line="
+"
+
+load_language_en_US () {
+	msg_common_software_not_found_title="Software not found"
+	msg_common_ffmpeg_not_found_text="Software Ffmpeg not found! Please, install it."
+	msg_common_action_not_found_text="The requested action is not implemented."
+	msg_common_overwrite_text="In case the images to be saved have the same name as those to be processed,${new_line}do you want to overwrite them?"
+	msg_common_abort="Operation interrupted by the user."
+	msg_common_file_not_found="File \"${name}\" not found!"
+	msg_common_name_error="The file name \"${name}\" does not match a recognized format for a date.${new_line}${new_line}The name must be of the type: YYYY-MM-DD_HHMMSS.jpg"
+	msg_common_start="Initialising ... "
+	msg_common_progress_text="Processing file $processed of $quantity ($(basename "${input}"))"
+	msg_common_finish_ok="Done."
+	msg_common_finish_error="An error has occurred."
+	msg_common_transparent_unsupported_text="This codec format does not support transparency.${new_line}Convert to an alpha codec."
+# 	msg_common_details="Details:"
+
+	msg_compress_title="Image compression with quality \"${value}\""
+	msg_compress_quality_input_text="Type the quality:"
+	msg_compress_finish_title="Compression of \"${name}\""
+
+	msg_codec_encode_input_text="Enter the desired codec:"
+
+	msg_interpolate_multiplicator_input_text="Choose the number by which you want to multiply the video(s)'s frame count:"
+
+	msg_rotate_title="Rotate file with angle of \"${value}\""
+	msg_rotate_angle_input_text="Enter the desired rotation angle:"
+	msg_rotate_finish_title="Rotation \"${name}\""
+
+}
+
+load_language () {
+	## Load localized strings AFTER english strings
+	## - if localized strings not found use english for default
+	## - if localized strings are incomplete use english only fot missing strings :-)
+	load_language_en_US && [ "${lang}" != "en_US" ] && load_language_${lang}
+}
+
+lang=${LANG%%.*}
+type load_language_${lang} &> /dev/null || lang='en_US'
+load_language
+
+################################################################################
+
+help () {
+	echo "TODO"
+	echo
+	exit 0
+}
+
+######################################## Run compress and resize
+
+run_reencode () {
+##&& [ "${ext}" = ".mov" ];
+	if [ "${overwrite}" = true ];  then
+		cp "${input}" "${dir}/${base}_TEMP.mov"
+		rm "${input}"
+		########### FFMPEG does not cache files being reencoded
+
+		#< /dev/null msg=$("${ffmpeg_bin}" -i "${input}" -vcodec "${codec}" -profile:v 2 -acodec pcm_s16le "${input}" 2>&1)
+
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -vcodec "${codec}" -profile:v 2 -acodec pcm_s16le "${input}" 2>&1)
+		rm "${dir}/${base}_TEMP.mov"
+	else
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vcodec "${codec}" -profile:v 2 -acodec pcm_s16le "${dir}/${base}_converted.mov" 2>&1)
+	fi
+
+	return $?
+}
+
+run_rewrap () {
+	if [ "${overwrite}" = true ] && [ "${ext}" = "${format}" ]; then
+		msg=$("${ffmpeg_bin}" -i "${input}" -c copy -map 0 "${input}.${format}" 2>&1)
+	else
+		msg=$("${ffmpeg_bin}" -i "${input}" -c copy -map 0 "${dir}/${base}.${format}" 2>&1)
+	fi
+
+	return $?
+
+}
+
+run_interpolate () {
+	if [ "${overwrite}" = true ];  then
+		fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+		fps_multiplied=$((${fps} * ${multiplicator}))
+
+		cp "${input}" "${dir}/${base}_TEMP.${ext}"
+		rm "${input}"
+
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.${ext}" -filter:v minterpolate -r "${fps_multiplied}" "${input}" 2>&1)
+
+		rm "${dir}/${base}_TEMP.${ext}"
+	else
+		fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+		fps_multiplied=$((${fps} * ${multiplicator}))
+
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${fps_multiplied}" "${dir}/${base}_interpolated.${ext}" 2>&1)
+
+		"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${fps_multiplied}"
+	fi
+
+	return $?
+}
+
+run_overturn () {
+	if [ "${overwrite}" = true ];  then
+		cp "${input}" "${dir}/${base}_TEMP.${ext}"
+		rm "${input}"
+
+		msg=$("${ffmpeg_bin}" -i "${dir}/${base}_TEMP.${ext}" -filter:v "${value}" -c:a copy "${input}" 2>&1)
+
+		rm "${dir}/${base}_TEMP.${ext}"
+	else
+		msg=$("${ffmpeg_bin}" -i "${input}" -filter:v "${value}" -c:a copy "${dir}/${base}_rotated.${ext}" 2>&1)
+	fi
+
+	return $?
+}
+
+run_rotate () {
+	if [ "${overwrite}" = true ];  then
+		cp "${input}" "${dir}/${base}_TEMP.${ext}"
+		rm "${input}"
+
+		msg=$("${ffmpeg_bin}" -display_rotation "${angle}" -i "${dir}/${base}_TEMP.${ext}" -c:a copy "${input}" 2>&1)
+
+		rm "${dir}/${base}_TEMP.${ext}"
+	else
+		msg=$("${ffmpeg_bin}" -display_rotation "${angle}" -i "${input}" -c:a copy "${dir}/${base}_rotated.${ext}" 2>&1)
+	fi
+
+	return $?
+}
+
+run_horizontal_disassemble () {
+
+	mkdir "${dir}/frames"
+	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/frames/${base}_%03d.${value}" 2>&1)
+
+
+	return $?
+}
+
+
+########################################
+
+do_you_want_to_overwrite () {
+	"${kdialog_bin}" --icon configure --title "${!msg_title}" --warningyesno "${msg_common_overwrite_text}" && overwrite=true || \
+		{
+			[ $? -eq 1 ] && overwrite=false || \
+				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		}
+}
+
+manage_input_separately () {
+	[ ${#} -lt 1 ] && help
+	[ ${#} -gt 1 ] && multiple_files=true
+
+	type run_${action} > /dev/null || \
+		{ "${kdialog_bin}" --title "${msg_common_software_not_found_title}" --icon configure --error "${msg_common_action_not_found_text}" && exit 2; }
+
+	[ "${ask_overwrite}" = true ] && do_you_want_to_overwrite
+
+	quantity=$#
+	dbus_ref=$(kdialog --icon configure --title "${!msg_title}" --progressbar "${msg_common_start}" $quantity)
+	qdbus $dbus_ref showCancelButton true
+	processed=0
+
+	for input in "$@"; do
+		## Check if cancel button has been pushed
+		[ "$(qdbus $dbus_ref wasCancelled)" = "true" ] && \
+			qdbus $dbus_ref close && "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2;
+
+		dir=$(dirname -- "${input}")
+		name="${input##*/}"
+		base="${name%.*}"
+		ext="${name##*.}"
+
+		processed=$(($processed + 1))
+		load_language
+
+		[ ! -f "${input}" ] && "${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_file_not_found}" && break
+		qdbus $dbus_ref setLabelText "${msg_common_progress_text}"
+
+		msg_finish_title=msg_${action}_finish_title
+		run_${action} && \
+			"${kdialog_bin}" --title "${!msg_finish_title}" --passivepopup "${msg_common_finish_ok}" 5 || \
+			{ qdbus $dbus_ref close; "${kdialog_bin}" --icon configure --title "${!msg_finish_title}" --detailederror "${msg_common_finish_error}" "${msg}"; exit 2; }
+
+		qdbus $dbus_ref org.freedesktop.DBus.Properties.Set org.kde.kdialog.ProgressDialog value $processed
+	done
+
+	qdbus $dbus_ref close
+}
+
+manage_input_at_once () {
+	[ ${#} -lt 1 ] && help
+
+	dir=$(dirname -- "${1}")
+	name="${1##*/}"
+	load_language
+
+	msg_finish_title=msg_${action}_finish_title
+	run_${action} "${@}" && \
+		"${kdialog_bin}" --title "${!msg_finish_title}" --passivepopup "${msg_common_finish_ok}" 5 || \
+		{ qdbus $dbus_ref close; "${kdialog_bin}" --icon configure --title "${!msg_finish_title}" --detailederror "${msg_common_finish_error}" "${msg}"; exit 2; }
+
+}
+
+######################################## Set compress and resize input
+
+
+set_reencode () {
+	value="${1}"
+	shift
+
+	[ "${value}" = "formats" ] && { formats; exit 0; }
+
+	if [ "${value}" = "custom" ]; then
+		codec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	else
+		codec="${value}"
+	fi
+
+	ask_overwrite=true
+
+	manage_input_separately "${@}"
+}
+
+set_rewrap () {
+	value="${1}"
+	shift
+
+	[ "${value}" = "formats" ] && { formats; exit 0; }
+
+	if [ "${value}" = "custom" ]; then
+		format=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_rewrap_format_input_text}") || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	else
+		format="${value}"
+	fi
+
+	for arg in "$@"; do
+		arg_ext="${arg##*.}"
+		[ "${arg_ext}" = "${format}" ] && ask_overwrite=true && break
+	done
+
+	manage_input_separately "${@}"
+}
+
+set_interpolate () {
+	multiplicator_list=$(cat /usr/bin/multiplicator_list )
+
+	#fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+
+	multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+
+	#fps_multiplied=$("${fps}" * "${multiplicator}")
+
+
+	#"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${fps}"
+
+	ask_overwrite=true
+	manage_input_separately "${@}"
+
+
+}
+
+set_overturn () {
+	value="${1}"
+	shift
+
+	ask_overwrite=true
+	manage_input_separately "${@}"
+}
+
+set_rotate () {
+	value="${1}"
+	shift
+
+	if [ "${value}" = "custom" ]; then
+		angle=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_rotate_angle_input_text}") || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	else
+		angle="${value}"
+	fi
+
+	ask_overwrite=true
+	manage_input_separately "${@}"
+}
+
+set_horizontal_disassemble () {
+	value="${1}"
+	shift
+
+	manage_input_separately "${@}"
+}
+
+
+################################################################################
+
+[ "${1}" = "-h" ] || [ "${1}" = "--help" ] || [ ${#} -lt 2 ] && help
+
+kdialog_bin=$(which kdialog)
+[ -z "${kdialog_bin}" ] && echo "kdialog not found!" && exit 1
+
+ffmpeg_bin=$(which ffmpeg)
+[ -z "${ffmpeg_bin}" ] && \
+	"${kdialog_bin}" --icon configure --title "${msg_common_software_not_found_title}" --error "${msg_common_ffmpeg_not_found_text}" && exit 2
+
+action="${1}"
+shift
+
+
+
+load_language
+msg_title=msg_${action}_title
+
+type set_${action} &> /dev/null || \
+	{ "${kdialog_bin}" --icon configure --title "${msg_common_software_not_found_title}" --error "${msg_common_action_not_found_text}" && exit 3; }
+
+ask_overwrite=false
+set_${action} "${@}"
+
+exit 0

@@ -1,0 +1,60 @@
+#
+# 	Part of kde-service-menu-reimage Version 2.4
+# 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
+#
+# 	This program is free software: you can redistribute it and/or modify
+# 	it under the terms of the GNU General Public License as published by
+# 	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#
+# 	This program is distributed in the hope that it will be useful,
+# 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+# 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# 	GNU General Public License for more details.
+#
+# 	You should have received a copy of the GNU General Public License
+# 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+[Desktop Entry]
+Actions=prores442proxy;prores442;prores4444;_SEPARATOR_;dnxhd100;dnxhd220
+MimeType=video/*
+X-KDE-Priority=TopLevel
+Name=ReVideo reencode professionaly service menu
+ServiceTypes=KonqPopupMenu/Plugin,video/*,audio/*
+TryExec=revideo-kdialog
+Type=Service
+X-KDE-Submenu=Reencode (pro)
+X-KDE-Submenu[fr]=Réencodage (pro)
+
+################################################################################
+
+[Desktop Action prores442proxy]
+Exec=revideo-kdialog reencode prores442proxy %F
+Icon=video-quicktime
+Name=Convert to ProRes442 Proxy
+Name[fr]=Convertir en ProRes 442 Proxy
+
+[Desktop Action prores442]
+Exec=revideo-kdialog reencode prores %F
+Icon=video-quicktime
+Name=Convert to ProRes442
+Name[fr]=Convertir en ProRes 442
+
+[Desktop Action prores4444]
+Exec=revideo-kdialog reencode prores444 %F
+Icon=video-quicktime
+Name=Convert to ProRes4444
+Name[fr]=Convertir en ProRes 4444
+
+[Desktop Action dnxhd100]
+Exec=revideo-kdialog reencode dnxhd100 %F
+Icon=video-webm
+Name=Convert to DNxHD 100
+Name[fr]=Convertir en DNxHD 100
+
+[Desktop Action dnxhd220]
+Exec=revideo-kdialog reencode dnxhd444 %F
+Icon=video-webm
+Name=Convert to DNxHD 220
+Name[fr]=Convertir en DNxHD 220
