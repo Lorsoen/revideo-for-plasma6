@@ -26,23 +26,25 @@ TryExec=revideo-kdialog
 Type=Service
 X-KDE-Submenu=Reencode (pro)
 X-KDE-Submenu[fr]=Réencodage (pro)
+Terminal=true
+TerminalOptions=\s--noclose
 
 ################################################################################
 
 [Desktop Action prores442proxy]
-Exec=revideo-kdialog reencode prores442proxy %F
+Exec=revideo-kdialog reencode prores_0 %F
 Icon=video-quicktime
 Name=Convert to ProRes442 Proxy
 Name[fr]=Convertir en ProRes 442 Proxy
 
 [Desktop Action prores442]
-Exec=revideo-kdialog reencode prores %F
+Exec=revideo-kdialog reencode prores_2 %F
 Icon=video-quicktime
 Name=Convert to ProRes442
 Name[fr]=Convertir en ProRes 442
 
 [Desktop Action prores4444]
-Exec=revideo-kdialog reencode prores444 %F
+Exec=revideo-kdialog reencode prores_4 %F
 Icon=video-quicktime
 Name=Convert to ProRes4444
 Name[fr]=Convertir en ProRes 4444

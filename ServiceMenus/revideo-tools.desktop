@@ -26,6 +26,8 @@ TryExec=revideo-kdialog
 Type=Service
 X-KDE-Submenu=Tools
 X-KDE-Submenu[fr]=Outils
+Terminal=true
+TerminalOptions=\s--noclose
 
 ################################################################################
 

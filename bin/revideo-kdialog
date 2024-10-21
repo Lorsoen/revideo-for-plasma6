@@ -1,7 +1,8 @@
 #! /bin/bash
 #
 # 	Part of kde-service-menu-revideo Version 1.0
-# 	Copyright (C) 2024
+# 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
+# 	Copyright (C) 2024 <fashim99.(at)gmail.com>
 #
 # 	This program is free software: you can redistribute it and/or modify
 # 	it under the terms of the GNU General Public License as published by
@@ -44,6 +45,7 @@ load_language_en_US () {
 	msg_compress_finish_title="Compression of \"${name}\""
 
 	msg_codec_encode_input_text="Enter the desired codec:"
+	msg_profile_encode_input_text="Enter the desired profile:"	
 
 	msg_interpolate_multiplicator_input_text="Choose the number by which you want to multiply the video(s)'s frame count:"
 
@@ -60,7 +62,7 @@ load_language () {
 	load_language_en_US && [ "${lang}" != "en_US" ] && load_language_${lang}
 }
 
-lang=${LANG%%.*}
+lang=${LANG//.?*/}
 type load_language_${lang} &> /dev/null || lang='en_US'
 load_language
 
@@ -77,25 +79,30 @@ help () {
 run_reencode () {
 ##&& [ "${ext}" = ".mov" ];
 	if [ "${overwrite}" = true ];  then
+		sleep 0.8
 		cp "${input}" "${dir}/${base}_TEMP.mov"
-		rm "${input}"
+		#rm "${input}"
 		########### FFMPEG does not cache files being reencoded
-
+	
 		#< /dev/null msg=$("${ffmpeg_bin}" -i "${input}" -vcodec "${codec}" -profile:v 2 -acodec pcm_s16le "${input}" 2>&1)
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -vcodec "${codec}" -profile:v 2 -acodec pcm_s16le "${input}" 2>&1)
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -vcodec "${codec}" -profile:v "${profile}" -acodec pcm_s16le "${input}" 2>&1)
 		rm "${dir}/${base}_TEMP.mov"
 	else
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vcodec "${codec}" -profile:v 2 -acodec pcm_s16le "${dir}/${base}_converted.mov" 2>&1)
+		sleep 0.8
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vcodec "${codec}" -profile:v "${profile}" -acodec pcm_s16le "${dir}/${base}_converted.mov" 2>&1)
 	fi
-
+	
+	printf "DEBUG_ENC"
 	return $?
 }
 
 run_rewrap () {
 	if [ "${overwrite}" = true ] && [ "${ext}" = "${format}" ]; then
+		sleep 0.8
 		msg=$("${ffmpeg_bin}" -i "${input}" -c copy -map 0 "${input}.${format}" 2>&1)
 	else
+		sleep 0.8
 		msg=$("${ffmpeg_bin}" -i "${input}" -c copy -map 0 "${dir}/${base}.${format}" 2>&1)
 	fi
 
@@ -120,7 +127,7 @@ run_interpolate () {
 
 		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${fps_multiplied}" "${dir}/${base}_interpolated.${ext}" 2>&1)
 
-		"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${fps_multiplied}"
+		#DEBUG"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${fps_multiplied}"
 	fi
 
 	return $?
@@ -158,9 +165,8 @@ run_rotate () {
 
 run_horizontal_disassemble () {
 
-	mkdir "${dir}/frames"
-	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/frames/${base}_%03d.${value}" 2>&1)
-
+	mkdir "${dir}/${base}_frames"
+	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/${base}_frames/${base}_%03d.${value}" 2>&1)
 
 	return $?
 }
@@ -180,6 +186,9 @@ manage_input_separately () {
 	[ ${#} -lt 1 ] && help
 	[ ${#} -gt 1 ] && multiple_files=true
 
+    # update messages with presently available vars
+    load_language
+
 	type run_${action} > /dev/null || \
 		{ "${kdialog_bin}" --title "${msg_common_software_not_found_title}" --icon configure --error "${msg_common_action_not_found_text}" && exit 2; }
 
@@ -187,31 +196,32 @@ manage_input_separately () {
 
 	quantity=$#
 	dbus_ref=$(kdialog --icon configure --title "${!msg_title}" --progressbar "${msg_common_start}" $quantity)
-	qdbus $dbus_ref showCancelButton true
 	processed=0
 
 	for input in "$@"; do
-		## Check if cancel button has been pushed
-		[ "$(qdbus $dbus_ref wasCancelled)" = "true" ] && \
-			qdbus $dbus_ref close && "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2;
+		## Check if window has been closed w. cancel / alt + f4...
+		if [ "$?" = 0 ]; then
+			dir=$(dirname -- "${input}")
+			name="${input##*/}"
+			base="${name%.*}"
+			ext="${name##*.}"
 
-		dir=$(dirname -- "${input}")
-		name="${input##*/}"
-		base="${name%.*}"
-		ext="${name##*.}"
+			processed=$(($processed + 1))
+			load_language
+			printf "${input}" 
+			[ ! -f "${input}" ] && "${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_file_not_found}" && break
+			qdbus $dbus_ref setLabelText "${msg_common_progress_text}"
 
-		processed=$(($processed + 1))
-		load_language
-
-		[ ! -f "${input}" ] && "${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_file_not_found}" && break
-		qdbus $dbus_ref setLabelText "${msg_common_progress_text}"
-
-		msg_finish_title=msg_${action}_finish_title
-		run_${action} && \
-			"${kdialog_bin}" --title "${!msg_finish_title}" --passivepopup "${msg_common_finish_ok}" 5 || \
-			{ qdbus $dbus_ref close; "${kdialog_bin}" --icon configure --title "${!msg_finish_title}" --detailederror "${msg_common_finish_error}" "${msg}"; exit 2; }
-
-		qdbus $dbus_ref org.freedesktop.DBus.Properties.Set org.kde.kdialog.ProgressDialog value $processed
+			msg_finish_title=msg_${action}_finish_title
+			run_${action} && \
+				printf "DEBUG_INPUT"
+				"${kdialog_bin}" --title "${!msg_finish_title}" --passivepopup "${msg_common_finish_ok}" 5 || \
+				{ qdbus $dbus_ref close; "${kdialog_bin}" --icon configure --title "${!msg_finish_title}" --detailederror "${msg_common_finish_error}" "${msg}"; exit 2; }
+			
+			qdbus $dbus_ref org.freedesktop.DBus.Properties.Set org.kde.kdialog.ProgressDialog value $processed
+		else	
+			"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2;
+		fi
 	done
 
 	qdbus $dbus_ref close
@@ -238,15 +248,20 @@ set_reencode () {
 	value="${1}"
 	shift
 
-	[ "${value}" = "formats" ] && { formats; exit 0; }
+	load_language
+
+	[ "${value}" = "codecs" ] && { formats; exit 0; }
 
 	if [ "${value}" = "custom" ]; then
 		codec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_profile_encode_input_text}") || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 	else
-		codec="${value}"
-	fi
-
+		codec="${value//_?*/}"
+		profile="${value//*?_/}"
+	fi	
+	
 	ask_overwrite=true
 
 	manage_input_separately "${@}"
@@ -255,8 +270,6 @@ set_reencode () {
 set_rewrap () {
 	value="${1}"
 	shift
-
-	[ "${value}" = "formats" ] && { formats; exit 0; }
 
 	if [ "${value}" = "custom" ]; then
 		format=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_rewrap_format_input_text}") || \
@@ -286,7 +299,11 @@ set_interpolate () {
 
 	#"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${fps}"
 
-	ask_overwrite=true
+	for arg in "$@"; do
+		arg_ext="${arg##*.}"
+		[ "${arg_ext}" = "${format}" ] && ask_overwrite=true && break
+	done
+
 	manage_input_separately "${@}"
 
 
@@ -296,7 +313,11 @@ set_overturn () {
 	value="${1}"
 	shift
 
-	ask_overwrite=true
+	for arg in "$@"; do
+		arg_ext="${arg##*.}"
+		[ "${arg_ext}" = "${format}" ] && ask_overwrite=true && break
+	done
+
 	manage_input_separately "${@}"
 }
 
@@ -311,7 +332,11 @@ set_rotate () {
 		angle="${value}"
 	fi
 
-	ask_overwrite=true
+	for arg in "$@"; do
+		arg_ext="${arg##*.}"
+		[ "${arg_ext}" = "${format}" ] && ask_overwrite=true && break
+	done
+
 	manage_input_separately "${@}"
 }
 
@@ -341,6 +366,7 @@ shift
 
 load_language
 msg_title=msg_${action}_title
+msg_finish_title=msg_${action}_finish_title
 
 type set_${action} &> /dev/null || \
 	{ "${kdialog_bin}" --icon configure --title "${msg_common_software_not_found_title}" --error "${msg_common_action_not_found_text}" && exit 3; }
