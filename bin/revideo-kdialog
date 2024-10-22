@@ -115,45 +115,6 @@ run_reencode () {
 	return $?
 }
 
-run_reencode_h264 () {
-##&& [ "${ext}" = ".mov" ];
-	printf "${auto}"
-
-	if [ "${auto}" = "auto" ];  then
-
-		printf "AUTO"
-		if [ "${overwrite}" = true ];  then
-			cp "${input}" "${dir}/${base}_TEMP.mov"
-			rm "${input}"
-			########### FFMPEG does not cache files being reencoded
-
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -c:a copy "${input}" 2>&1)
-			rm "${dir}/${base}_TEMP.mov"
-		else
-			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
-		fi
-
-	else
-
-		if [ "${overwrite}" = true ];  then
-			cp "${input}" "${dir}/${base}_TEMP.mov"
-			rm "${input}"
-			########### FFMPEG does not cache files being reencoded
-
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${input}" 2>&1)
-			rm "${dir}/${base}_TEMP.mov"
-		else
-			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
-		fi
-
-	fi
-	
-	#DEBUGprintf "DEBUG_ENC"
-	return $?
-}
-
 run_rewrap () {
 	if [ "${overwrite}" = true ] && [ "${ext}" = "${format}" ]; then
 		sleep 0.8
@@ -302,28 +263,6 @@ manage_input_at_once () {
 
 
 set_reencode () {
-	value="${1}"
-	auto="${value//*?-/}"
-	shift
-
-	load_language
-
-	if [ "${value}" = "codecs" ] && { formats; exit 0; }; then
-		vcodec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_profile_encode_input_text}") || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	else
-		vcodec="${value//-?*/}"
-		profile="${value//*?-/}"
-	fi	
-	
-	ask_overwrite=true
-
-	manage_input_separately "${@}"
-}
-
-set_reencode_h264 () {
 	value="${1}"
 	auto="${value//*?-/}"
 	shift
