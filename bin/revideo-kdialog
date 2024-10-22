@@ -134,28 +134,28 @@ run_reencode_h264 () {
 			rm "${input}"
 			########### FFMPEG does not cache files being reencoded
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy -crf "${bitrate}" -preset "${quality}" "${input}" 2>&1)	
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v libx264 -c:a copy -crf "${bitrate}" -preset "${quality}" "${input}" 2>&1)	
 			rm "${dir}/${base}_TEMP.mov"
 		else
-			printf "DEBUG_ENC"
+			#printf "DEBUG_ENC"
 			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy -crf "${bitrate}" -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v libx264 -c:a copy -crf "${bitrate}" -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
 		fi
 
 	else
-
 		if [ "${overwrite}" = true ];  then
+			#printf "DEBUG_ENC"
 			cp "${input}" "${dir}/${base}_TEMP.mov"
 			rm "${input}"
 			########### FFMPEG does not cache files being reencoded
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${input}" 2>&1)
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v libx264 -c:a copy -crf "${bitrate}" -preset "${quality}" "${input}" 2>&1)	
 			rm "${dir}/${base}_TEMP.mov"
 		else
+			printf "DEBUG_ENC"
 			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v libx264 -c:a copy -crf "${bitrate}" -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
 		fi
-
 	fi
 	
 	#DEBUGprintf "DEBUG_ENC"
@@ -335,10 +335,11 @@ set_reencode_h264 () {
 	value="${1}"
 
 	valid_value="false"
+	h264_quality_list=("ultrafast superfast veryfast faster fast medium slow slower veryslow")
 
 	default_bitrate=23
 	default_quality=medium
-	h264_quality_list=("ultrafast superfast veryfast faster fast medium slow slower veryslow")
+	
 	shift
 
 	load_language
@@ -358,6 +359,9 @@ set_reencode_h264 () {
 	
 	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_h264_quality_encode_input_text}" "medium" "fast" 1) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${quality}" = "" ]; then quality="${default_quality}" 
+	fi
+	printf "${quality}"
 
 	ask_overwrite=true
 

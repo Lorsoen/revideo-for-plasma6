@@ -17,7 +17,7 @@
 #
 
 [Desktop Entry]
-Actions=h264;av1;vp9
+Actions=h264;h265
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo reencode professionaly service menu
@@ -37,16 +37,22 @@ Icon=video-x-wmv
 Name=Convert to H264
 Name[fr]=Convertir en H264
 
-[Desktop Action av1]
-Exec=revideo-kdialog reencode_av1 av1 %F
-Icon=video-webm
-Name=Convert to ProRes442 LT
-Name[fr]=Convertir en ProRes 442 LT
+[Desktop Action h265]
+Exec=revideo-kdialog reencode_h265 libx265 %F
+Icon=video-x-wmv
+Name=Convert to H265
+Name[fr]=Convertir en H265
 
-[Desktop Action vp9]
-Exec=revideo-kdialog reencode vp9 %F
-Icon=video-webm
-Name=Convert to ProRes442
-Name[fr]=Convertir en ProRes 442
+#[Desktop Action av1]
+#Exec=revideo-kdialog reencode_av1 av1 %F
+#Icon=video-webm
+#Name=Convert to ProRes442 LT
+#Name[fr]=Convertir en ProRes 442 LT
+#
+#[Desktop Action vp9]
+#Exec=revideo-kdialog reencode vp9 %F
+#Icon=video-webm
+#Name=Convert to ProRes442
+#Name[fr]=Convertir en ProRes 442
 
 ---------------------------------------------
