@@ -44,8 +44,13 @@ load_language_en_US () {
 	msg_compress_quality_input_text="Type the quality:"
 	msg_compress_finish_title="Compression of \"${name}\""
 
+	msg_h264_bitrate_encode_input_text="Enter a value for bitrate, 0 to 51 (23 by default).${new_line}Higher equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement."
+	msg_h264_quality_encode_input_text="Choose a speed for compression ("medium" by default).${new_line}Slower equals better quality but slower encoding / decoding time."
+
 	msg_codec_encode_input_text="Enter the desired codec:"
 	msg_profile_encode_input_text="Enter the desired profile:"	
+
+	msg_invalid_value="An invalid value was entered. Please, try again."
 
 	msg_interpolate_multiplicator_input_text="Choose the number by which you want to multiply the video(s)'s frame count:"
 
@@ -76,7 +81,7 @@ help () {
 
 ######################################## Run compress and resize
 
-run_reencode () {
+run_reencode_pro () {
 ##&& [ "${ext}" = ".mov" ];
 	printf "${auto}"
 
@@ -84,6 +89,7 @@ run_reencode () {
 
 		printf "AUTO"
 		if [ "${overwrite}" = true ];  then
+			sleep 0.8
 			cp "${input}" "${dir}/${base}_TEMP.mov"
 			rm "${input}"
 			########### FFMPEG does not cache files being reencoded
@@ -123,15 +129,17 @@ run_reencode_h264 () {
 
 		printf "AUTO"
 		if [ "${overwrite}" = true ];  then
+			sleep 0.8
 			cp "${input}" "${dir}/${base}_TEMP.mov"
 			rm "${input}"
 			########### FFMPEG does not cache files being reencoded
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -c:a copy "${input}" 2>&1)
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy -crf "${bitrate}" -preset "${quality}" "${input}" 2>&1)	
 			rm "${dir}/${base}_TEMP.mov"
 		else
+			printf "DEBUG_ENC"
 			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy -crf "${bitrate}" -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
 		fi
 
 	else
@@ -301,14 +309,14 @@ manage_input_at_once () {
 ######################################## Set compress and resize input
 
 
-set_reencode () {
+set_reencode_pro () {
 	value="${1}"
 	auto="${value//*?-/}"
 	shift
 
 	load_language
 
-	if [ "${value}" = "codecs" ] && { formats; exit 0; }; then
+	if [ "${value}" = "custom" ] && { formats; exit 0; }; then
 		vcodec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_profile_encode_input_text}") || \
@@ -325,21 +333,32 @@ set_reencode () {
 
 set_reencode_h264 () {
 	value="${1}"
-	auto="${value//*?-/}"
+
+	valid_value="false"
+
+	default_bitrate=23
+	default_quality=medium
+	h264_quality_list=("ultrafast superfast veryfast faster fast medium slow slower veryslow")
 	shift
 
 	load_language
 
-	if [ "${value}" = "codecs" ] && { formats; exit 0; }; then
-		vcodec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
+	while [ "${valid_value}" = "false" ]; do
+		bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_h264_bitrate_encode_input_text}" $default_bitrate) || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_profile_encode_input_text}") || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	else
-		vcodec="${value//-?*/}"
-		profile="${value//*?-/}"
-	fi	
+		
+		valid_value="true"
+		
+		if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt 0 ] || [ $bitrate -gt 51 ]; then
+			"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+			valid_value="false"
+			printf "${valid_value}"
+		fi
+	done
 	
+	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_h264_quality_encode_input_text}" "medium" "fast" 1) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+
 	ask_overwrite=true
 
 	manage_input_separately "${@}"

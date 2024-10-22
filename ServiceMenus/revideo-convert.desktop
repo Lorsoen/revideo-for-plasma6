@@ -32,19 +32,13 @@ TerminalOptions=\s--noclose
 ################################################################################
 
 [Desktop Action h264]
-Exec=revideo-kdialog reencode mpeg2 %F
-Icon=video-x-wmv
-Name=Convert to H264
-Name[fr]=Convertir en H264
-
-[Desktop Action h264]
-Exec=revideo-kdialog reencode mpeg2 %F
+Exec=revideo-kdialog reencode_h264 libx264 %F
 Icon=video-x-wmv
 Name=Convert to H264
 Name[fr]=Convertir en H264
 
 [Desktop Action av1]
-Exec=revideo-kdialog reencode av1 %F
+Exec=revideo-kdialog reencode_av1 av1 %F
 Icon=video-webm
 Name=Convert to ProRes442 LT
 Name[fr]=Convertir en ProRes 442 LT
@@ -55,52 +49,4 @@ Icon=video-webm
 Name=Convert to ProRes442
 Name[fr]=Convertir en ProRes 442
 
-[Desktop Action prores442hq]
-Exec=revideo-kdialog reencode prores-3 %F
-Icon=video-quicktime
-Name=Convert to ProRes442 HQ
-Name[fr]=Convertir en ProRes 442 HQ
-
-[Desktop Action prores4444]
-Exec=revideo-kdialog reencode prores-4 %F
-Icon=video-quicktime
-Name=Convert to ProRes4444
-Name[fr]=Convertir en ProRes 4444
-
-[Desktop Action prores4444xq]
-Exec=revideo-kdialog reencode prores-5 %F
-Icon=video-quicktime
-Name=Convert to ProRes4444 XQ
-Name[fr]=Convertir en ProRes 4444 XQ
-
 ---------------------------------------------
-
-[Desktop Action dnxhd36]
-Exec=revideo-kdialog reencode dnxhd-dnxhr_lb %F
-Icon=video-webm
-Name=Convert to DNxHD 36
-Name[fr]=Convertir en DNxHD 36
-
-[Desktop Action dnxhd100]
-Exec=revideo-kdialog reencode dnxhd-dnxhr_sq %F
-Icon=video-webm
-Name=Convert to DNxHD 100
-Name[fr]=Convertir en DNxHD 100
-
-[Desktop Action dnxhd145]
-Exec=revideo-kdialog reencode dnxhd-dnxhr_hq %F
-Icon=video-webm
-Name=Convert to DNxHD 145
-Name[fr]=Convertir en DNxHD 145
-
-[Desktop Action dnxhd220]
-Exec=revideo-kdialog reencode dnxhd-dnxhr_hqx %F
-Icon=video-webm
-Name=Convert to DNxHD 220
-Name[fr]=Convertir en DNxHD 220
-
-[Desktop Action dnxhd444]
-Exec=revideo-kdialog reencode dnxhd-dnxhr_444 %F
-Icon=video-webm
-Name=Convert to DNxHD 444
-Name[fr]=Convertir en DNxHD 444
