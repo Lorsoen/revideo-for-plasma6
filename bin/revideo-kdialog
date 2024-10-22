@@ -78,22 +78,79 @@ help () {
 
 run_reencode () {
 ##&& [ "${ext}" = ".mov" ];
-	if [ "${overwrite}" = true ];  then
-		sleep 0.8
-		cp "${input}" "${dir}/${base}_TEMP.mov"
-		#rm "${input}"
-		########### FFMPEG does not cache files being reencoded
-	
-		#< /dev/null msg=$("${ffmpeg_bin}" -i "${input}" -vcodec "${codec}" -profile:v 2 -acodec pcm_s16le "${input}" 2>&1)
+	printf "${auto}"
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -vcodec "${codec}" -profile:v "${profile}" -acodec pcm_s16le "${input}" 2>&1)
-		rm "${dir}/${base}_TEMP.mov"
+	if [ "${auto}" = "auto" ];  then
+
+		printf "AUTO"
+		if [ "${overwrite}" = true ];  then
+			cp "${input}" "${dir}/${base}_TEMP.mov"
+			rm "${input}"
+			########### FFMPEG does not cache files being reencoded
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -c:a copy "${input}" 2>&1)
+			rm "${dir}/${base}_TEMP.mov"
+		else
+			sleep 0.8
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+		fi
+
 	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vcodec "${codec}" -profile:v "${profile}" -acodec pcm_s16le "${dir}/${base}_converted.mov" 2>&1)
+
+		if [ "${overwrite}" = true ];  then
+			cp "${input}" "${dir}/${base}_TEMP.mov"
+			rm "${input}"
+			########### FFMPEG does not cache files being reencoded
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${input}" 2>&1)
+			rm "${dir}/${base}_TEMP.mov"
+		else
+			sleep 0.8
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+		fi
+
 	fi
 	
-	printf "DEBUG_ENC"
+	#DEBUGprintf "DEBUG_ENC"
+	return $?
+}
+
+run_reencode_h264 () {
+##&& [ "${ext}" = ".mov" ];
+	printf "${auto}"
+
+	if [ "${auto}" = "auto" ];  then
+
+		printf "AUTO"
+		if [ "${overwrite}" = true ];  then
+			cp "${input}" "${dir}/${base}_TEMP.mov"
+			rm "${input}"
+			########### FFMPEG does not cache files being reencoded
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -c:a copy "${input}" 2>&1)
+			rm "${dir}/${base}_TEMP.mov"
+		else
+			sleep 0.8
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+		fi
+
+	else
+
+		if [ "${overwrite}" = true ];  then
+			cp "${input}" "${dir}/${base}_TEMP.mov"
+			rm "${input}"
+			########### FFMPEG does not cache files being reencoded
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${input}" 2>&1)
+			rm "${dir}/${base}_TEMP.mov"
+		else
+			sleep 0.8
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+		fi
+
+	fi
+	
+	#DEBUGprintf "DEBUG_ENC"
 	return $?
 }
 
@@ -208,13 +265,13 @@ manage_input_separately () {
 
 			processed=$(($processed + 1))
 			load_language
-			printf "${input}" 
+			#DEBUGprintf "${input}" 
 			[ ! -f "${input}" ] && "${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_file_not_found}" && break
 			qdbus $dbus_ref setLabelText "${msg_common_progress_text}"
 
 			msg_finish_title=msg_${action}_finish_title
 			run_${action} && \
-				printf "DEBUG_INPUT"
+				#DEBUGprintf "DEBUG_INPUT"
 				"${kdialog_bin}" --title "${!msg_finish_title}" --passivepopup "${msg_common_finish_ok}" 5 || \
 				{ qdbus $dbus_ref close; "${kdialog_bin}" --icon configure --title "${!msg_finish_title}" --detailederror "${msg_common_finish_error}" "${msg}"; exit 2; }
 			
@@ -246,20 +303,41 @@ manage_input_at_once () {
 
 set_reencode () {
 	value="${1}"
+	auto="${value//*?-/}"
 	shift
 
 	load_language
 
-	[ "${value}" = "codecs" ] && { formats; exit 0; }
-
-	if [ "${value}" = "custom" ]; then
-		codec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
+	if [ "${value}" = "codecs" ] && { formats; exit 0; }; then
+		vcodec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_profile_encode_input_text}") || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 	else
-		codec="${value//_?*/}"
-		profile="${value//*?_/}"
+		vcodec="${value//-?*/}"
+		profile="${value//*?-/}"
+	fi	
+	
+	ask_overwrite=true
+
+	manage_input_separately "${@}"
+}
+
+set_reencode_h264 () {
+	value="${1}"
+	auto="${value//*?-/}"
+	shift
+
+	load_language
+
+	if [ "${value}" = "codecs" ] && { formats; exit 0; }; then
+		vcodec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_profile_encode_input_text}") || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	else
+		vcodec="${value//-?*/}"
+		profile="${value//*?-/}"
 	fi	
 	
 	ask_overwrite=true
