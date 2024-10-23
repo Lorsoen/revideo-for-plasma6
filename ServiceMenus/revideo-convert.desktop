@@ -1,0 +1,58 @@
+#
+# 	Part of kde-service-menu-reimage Version 2.4
+# 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
+#
+# 	This program is free software: you can redistribute it and/or modify
+# 	it under the terms of the GNU General Public License as published by
+# 	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#
+# 	This program is distributed in the hope that it will be useful,
+# 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+# 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# 	GNU General Public License for more details.
+#
+# 	You should have received a copy of the GNU General Public License
+# 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+[Desktop Entry]
+Actions=h264;h265;vp9
+MimeType=video/*
+X-KDE-Priority=TopLevel
+Name=ReVideo reencode professionaly service menu
+ServiceTypes=KonqPopupMenu/Plugin,video/*,audio/*
+TryExec=revideo-kdialog
+Type=Service
+X-KDE-Submenu=Reencode
+X-KDE-Submenu[fr]=Réencodage
+Terminal=true
+TerminalOptions=\s--noclose
+
+################################################################################
+
+[Desktop Action h264]
+Exec=revideo-kdialog reencode_h264_hevc libx264 %F
+Icon=video-x-wmv
+Name=Convert to H264
+Name[fr]=Convertir en H264
+
+[Desktop Action h265]
+Exec=revideo-kdialog reencode_h264_hevc libx265 %F
+Icon=video-x-wmv
+Name=Convert to HEVC
+Name[fr]=Convertir en HEVC
+
+[Desktop Action vp9]
+Exec=revideo-kdialog reencode_vp9 libvpx-vp9 %F
+Icon=video-webm
+Name=Convert to VP9
+Name[fr]=Convertir en VP9
+
+#[Desktop Action av1]
+#Exec=revideo-kdialog reencode_av1 libaom-av1 %F
+#Icon=video-webm
+#Name=Convert to AV1
+#Name[fr]=Convertir en AV1
+
+---------------------------------------------
