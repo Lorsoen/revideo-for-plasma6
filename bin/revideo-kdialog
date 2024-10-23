@@ -46,6 +46,7 @@ load_language_en_US () {
 
 	msg_bitrate_encode_input_text="Enter a value for bitrate, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Higher equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
 	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${new_line}Slower equals better quality but slower encoding / decoding time.${new_line}"
+	msg_gpu_encode_input_text="One or multiple compatible GPU(s) were detected. Choose an encoding method.${new_line}${new_line}GPU encoding may be faster depending of it's power.${new_line}It will also let your computer focus on other tasks."
 	msg_multithread_input_text="Do you want to run in multithread ?${new_line}${new_line}This will completly mobilise your CPU, accelerating${new_line}the encoding speed at the cost of your computer's reactivity.${new_line}${new_line}Recommended if you're not going to use it during operation.${new_line}"
 	
 	msg_codec_encode_input_text="Enter the desired codec:"
@@ -53,7 +54,7 @@ load_language_en_US () {
 
 	msg_invalid_value="An invalid value was entered. Please, try again."
 
-	msg_interpolate_multiplicator_input_text="Choose the number by which you want to multiply the video(s)'s frame count:"
+	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count (2 by default):"
 
 	msg_rotate_title="Rotate file with angle of \"${value}\""
 	msg_rotate_angle_input_text="Enter the desired rotation angle:"
@@ -123,7 +124,7 @@ run_reencode_pro () {
 
 ######################################## Run Convert
 
-run_reencode_h264_hevc () {
+run_reencode_h264 () {
 ##&& [ "${ext}" = ".mov" ];
 
 	if [ "${overwrite}" = true ];  then		
@@ -136,7 +137,8 @@ run_reencode_h264_hevc () {
 		rm "${dir}/${base}_TEMP.mov"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.mp4" 2>&1)
+		#DEBUGprintf "ENC_DEBUG"
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
 	fi
 		
 	return $?
@@ -244,6 +246,23 @@ run_rotate () {
 
 ########################################
 
+detect_gpu () {
+	gpu_choice=$(lspci | grep -i '.* vga .*')
+	gpu_list=""
+
+	if [[ "{$gpu_choice}" == *'UHD Graphics'* ]]; then
+		gpu_list="${gpu_list}Intel "
+		def_encode_on="Intel"
+	fi
+	if [[ "{$gpu_choice}" == *'GeForce'* ]]; then
+		gpu_list="${gpu_list}Nvidia "
+		def_encode_on="CPU"
+	fi
+	gpu_list="${gpu_list}CPU "
+
+	printf "${gpu_selection}"
+}
+
 do_you_want_to_overwrite () {
 	"${kdialog_bin}" --icon configure --title "${!msg_title}" --warningyesno "${msg_common_overwrite_text}" && overwrite=true || \
 		{
@@ -334,40 +353,75 @@ set_reencode_pro () {
 	manage_input_separately "${@}"
 }
 
-set_reencode_h264_hevc () {
+set_reencode_h264 () {
 	value="${1}"
 	vcodec="${value}"
+	
+	load_language
 
-	min_bitrate=0
-	max_bitrate=51
-	def_bitrate=23
-	def_quality=medium
+	############### Detect compatible GPu and choose which encode protocol is used. Important values are decided fron this function
+
+	detect_gpu
+	encode_on="CPU"
+	if [ ! "{$gpu_list}" = "CPU " ]; then
+		encode_on=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_encode_input_text}" $gpu_list) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${encode_on}" = "" ]; then encode_on="${def_encode_on}"
+		fi
+	
+		if [ "${encode_on}" = "Intel" ]; then
+			vcodec="h264_qsv"
+		elif [ "${encode_on}" = "Nvidia" ]; then
+			vcodec="h264_nvenc"
+		elif [ "${encode_on}" = "CPU" ]; then
+			vcodec="libx264"
+		fi
+	#DEBUGprintf "${vcodec}"
+	fi
+
+	############### Default values depending of the protocol
+
+	if [ "${vcodec}" = "h264_qsv" ]; then
+		
+		quality_list=("veryfast faster fast medium slow slower veryslow")
+	elif [ "${vcodec}" = "h264_nvenc" ]; then
+
+		quality_list=("p1 p2 p3 p4 p5 p6 p7")
+	elif [ "${vcodec}" = "libx264" ]; then
+		min_bitrate=0; max_bitrate=51;		def_bitrate=23; def_quality=medium;
+		quality_list=("ultrafast superfast veryfast faster fast medium slow slower veryslow")
+		printf "${max_bitrate}"
+	fi
+	
+	############### Ask for tweaking depending of the protocol
 
 	valid_value="false"
-	h264_quality_list=("ultrafast superfast veryfast faster fast medium slow slower veryslow")
-	
 	shift
 
 	load_language
 
-	while [ "${valid_value}" = "false" ]; do
-		bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${vcodec}" = "libx264" ]; then
 		
-		valid_value="true"
-		
-		if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
-			"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
-			valid_value="false"
-			printf "${valid_value}"
-		fi
-	done
+		while [ "${valid_value}" = "false" ]; do
+			bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
+				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+
+			valid_value="true"
+
+			if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
+				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+				valid_value="false"
+				printf "${valid_value}"
+			fi
+		done
+
+	opt_bitrate=" -crf $bitrate"
+	fi
 	
-	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $h264_quality_list) || \
+	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 	if [ "${quality}" = "" ]; then quality="${def_quality}" 
 	fi
-	printf "${quality}"
 
 	ask_overwrite=true
 
@@ -439,10 +493,13 @@ set_rewrap () {
 }
 
 set_interpolate () {
-	multiplicator_list=$(cat /usr/bin/multiplicator_list )
+	def_multi=2
+	multiplicator_list=("2 4 6 8")
 
 	multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${multiplicator}" = "" ]; then multiplicator="${def_multi}" 
+	fi
 
 	for arg in "$@"; do
 		arg_ext="${arg##*.}"

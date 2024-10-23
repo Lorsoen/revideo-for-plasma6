@@ -33,13 +33,13 @@ TerminalOptions=\s--noclose
 ################################################################################
 
 [Desktop Action h264]
-Exec=revideo-kdialog reencode_h264_hevc libx264 %F
+Exec=revideo-kdialog reencode_h264 libx264 %F
 Icon=video-x-wmv
 Name=Convert to H264
 Name[fr]=Convertir en H264
 
 [Desktop Action h265]
-Exec=revideo-kdialog reencode_h264_hevc libx265 %F
+Exec=revideo-kdialog reencode_hevc libx265 %F
 Icon=video-x-wmv
 Name=Convert to HEVC
 Name[fr]=Convertir en HEVC
