@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# 	Part of kde-service-menu-revideo Version 0.1.0
+# 	Part of kde-service-menu-revideo Version 0.1.1
 # 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
 # 	Copyright (C) 2024 <fashim99.(at)gmail.com>
 #
@@ -80,7 +80,7 @@ help () {
 	exit 0
 }
 
-######################################## Run compress and resize
+######################################## Run Convert pro
 
 run_reencode_pro () {
 ##&& [ "${ext}" = ".mov" ];
@@ -117,16 +117,16 @@ run_reencode_pro () {
 		fi
 
 	fi
-	
-	#DEBUGprintf "DEBUG_ENC"
+		
 	return $?
 }
+
+######################################## Run Convert
 
 run_reencode_h264_hevc () {
 ##&& [ "${ext}" = ".mov" ];
 
-	if [ "${overwrite}" = true ];  then
-		#DEBUGprintf "DEBUG_ENC"
+	if [ "${overwrite}" = true ];  then		
 		sleep 0.8
 		cp "${input}" "${dir}/${base}_TEMP.mov"
 		rm "${input}"
@@ -138,16 +138,14 @@ run_reencode_h264_hevc () {
 		sleep 0.8
 		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.mp4" 2>&1)
 	fi
-	
-	#DEBUGprintf "DEBUG_ENC"
+		
 	return $?
 }
 
 run_reencode_vp9 () {
 ##&& [ "${ext}" = ".mov" ];
 
-	if [ "${overwrite}" = true ];  then
-		#DEBUGprintf "DEBUG_ENC"
+	if [ "${overwrite}" = true ];  then		
 		sleep 0.8
 		cp "${input}" "${dir}/${base}_TEMP.mov"
 		rm "${input}"
@@ -161,10 +159,11 @@ run_reencode_vp9 () {
 		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}" -crf "${bitrate}" -quality "${quality}" -row-mt "${multithread}" -an -f null /dev/null && \ 2>&1)
 		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}" -crf "${bitrate}" -quality "${quality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
 	fi
-	
-	#DEBUGprintf "DEBUG_ENC"
+		
 	return $?
 }
+
+######################################## Run Rewrap
 
 run_rewrap () {
 	if [ "${overwrite}" = true ] && [ "${ext}" = "${format}" ]; then
@@ -177,6 +176,16 @@ run_rewrap () {
 
 	return $?
 
+}
+
+######################################## Run Tools
+
+run_horizontal_disassemble () {
+
+	mkdir "${dir}/${base}_frames"
+	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/${base}_frames/${base}_%03d.${value}" 2>&1)
+
+	return $?
 }
 
 run_interpolate () {
@@ -194,13 +203,13 @@ run_interpolate () {
 		fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
 		fps_multiplied=$((${fps} * ${multiplicator}))
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${fps_multiplied}" "${dir}/${base}_interpolated.${ext}" 2>&1)
-
-		#DEBUG"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${fps_multiplied}"
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${fps_multiplied}" "${dir}/${base}_interpolated.${ext}" 2>&1)	
 	fi
 
 	return $?
 }
+
+######################################## Run Rotate
 
 run_overturn () {
 	if [ "${overwrite}" = true ];  then
@@ -228,14 +237,6 @@ run_rotate () {
 	else
 		msg=$("${ffmpeg_bin}" -display_rotation "${angle}" -i "${input}" -c:a copy "${dir}/${base}_rotated.${ext}" 2>&1)
 	fi
-
-	return $?
-}
-
-run_horizontal_disassemble () {
-
-	mkdir "${dir}/${base}_frames"
-	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/${base}_frames/${base}_%03d.${value}" 2>&1)
 
 	return $?
 }
@@ -276,14 +277,12 @@ manage_input_separately () {
 			ext="${name##*.}"
 
 			processed=$(($processed + 1))
-			load_language
-			#DEBUGprintf "${input}" 
+			load_language			
 			[ ! -f "${input}" ] && "${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_file_not_found}" && break
 			qdbus $dbus_ref setLabelText "${msg_common_progress_text}"
 
 			msg_finish_title=msg_${action}_finish_title
-			run_${action} && \
-				#DEBUGprintf "DEBUG_INPUT"
+			run_${action} && \				
 				"${kdialog_bin}" --title "${!msg_finish_title}" --passivepopup "${msg_common_finish_ok}" 5 || \
 				{ qdbus $dbus_ref close; "${kdialog_bin}" --icon configure --title "${!msg_finish_title}" --detailederror "${msg_common_finish_error}" "${msg}"; exit 2; }
 			
@@ -442,15 +441,8 @@ set_rewrap () {
 set_interpolate () {
 	multiplicator_list=$(cat /usr/bin/multiplicator_list )
 
-	#fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-
 	multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-
-	#fps_multiplied=$("${fps}" * "${multiplicator}")
-
-
-	#"${kdialog_bin}" --title "${!msg_title}" --passivepopup "${fps}"
 
 	for arg in "$@"; do
 		arg_ext="${arg##*.}"
@@ -458,8 +450,6 @@ set_interpolate () {
 	done
 
 	manage_input_separately "${@}"
-
-
 }
 
 set_overturn () {
