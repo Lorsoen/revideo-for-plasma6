@@ -44,9 +44,9 @@ load_language_en_US () {
 	msg_compress_quality_input_text="Type the quality:"
 	msg_compress_finish_title="Compression of \"${name}\""
 
-	msg_bitrate_encode_input_text="Enter a value for bitrate, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Higher equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
+	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Lower equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
 	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${new_line}Slower equals better quality but slower encoding / decoding time.${new_line}"
-	msg_gpu_encode_input_text="One or multiple compatible GPU(s) were detected. Choose an encoding method.${new_line}${new_line}GPU encoding may be faster depending of it's power.${new_line}It will also let your computer focus on other tasks."
+	msg_gpu_encode_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
 	msg_multithread_input_text="Do you want to run in multithread ?${new_line}${new_line}This will completly mobilise your CPU, accelerating${new_line}the encoding speed at the cost of your computer's reactivity.${new_line}${new_line}Recommended if you're not going to use it during operation.${new_line}"
 	
 	msg_codec_encode_input_text="Enter the desired codec:"
@@ -85,11 +85,9 @@ help () {
 
 run_reencode_pro () {
 ##&& [ "${ext}" = ".mov" ];
-	printf "${auto}"
 
 	if [ "${auto}" = "auto" ];  then
 
-		printf "AUTO"
 		if [ "${overwrite}" = true ];  then
 			sleep 0.8
 			cp "${input}" "${dir}/${base}_TEMP.mov"
@@ -133,11 +131,29 @@ run_reencode_h264 () {
 		rm "${input}"
 		########### FFMPEG does not cache files being reencoded
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy -crf "${bitrate}" -preset "${quality}" "${input}" 2>&1)	
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${input}" 2>&1)	
 		rm "${dir}/${base}_TEMP.mov"
 	else
 		sleep 0.8
-		#DEBUGprintf "ENC_DEBUG"
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
+	fi
+		
+	return $?
+}
+
+run_reencode_hevc () {
+##&& [ "${ext}" = ".mov" ];
+
+	if [ "${overwrite}" = true ];  then		
+		sleep 0.8
+		cp "${input}" "${dir}/${base}_TEMP.mov"
+		rm "${input}"
+		########### FFMPEG does not cache files being reencoded
+
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${input}" 2>&1)	
+		rm "${dir}/${base}_TEMP.mov"
+	else
+		sleep 0.8
 		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
 	fi
 		
@@ -147,21 +163,36 @@ run_reencode_h264 () {
 run_reencode_vp9 () {
 ##&& [ "${ext}" = ".mov" ];
 
-	if [ "${overwrite}" = true ];  then		
-		sleep 0.8
-		cp "${input}" "${dir}/${base}_TEMP.mov"
-		rm "${input}"
-		########### FFMPEG does not cache files being reencoded
+	if [ "${vcodec}" = "libvpx-vp9" ];  then
+		if [ "${overwrite}" = true ];  then		
+			sleep 0.8
+			cp "${input}" "${dir}/${base}_TEMP.mov"
+			rm "${input}"
+			########### FFMPEG does not cache files being reencoded
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy -crf "${bitrate}" -quality "${quality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1)
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy -crf "${bitrate}" -quality "${quality}" -row-mt "${multithread}" "${input}" 2>&1)
-		rm "${dir}/${base}_TEMP.mov"
-	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}" -crf "${bitrate}" -quality "${quality}" -row-mt "${multithread}" -an -f null /dev/null && \ 2>&1)
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}" -crf "${bitrate}" -quality "${quality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1)
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" "${input}" 2>&1)
+			rm "${dir}/${base}_TEMP.mov"
+		else
+			sleep 0.8
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" -an -f null /dev/null && \ 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
+		fi
+	elif [ "${vcodec}" = "vp9_qsv" ];  then
+		if [ "${overwrite}" = true ];  then		
+			sleep 0.8
+			cp "${input}" "${dir}/${base}_TEMP.mov"
+			rm "${input}"
+			########### FFMPEG does not cache files being reencoded
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${quality}" -c:a libopus "${input}" 2>&1)
+			rm "${dir}/${base}_TEMP.mov"
+		else
+			sleep 0.8
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${quality}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
+		fi
 	fi
-		
+
 	return $?
 }
 
@@ -246,21 +277,28 @@ run_rotate () {
 
 ########################################
 
-detect_gpu () {
+detect_gpu_h264_hevc () {
 	gpu_choice=$(lspci | grep -i '.* vga .*')
-	gpu_list=""
 
 	if [[ "{$gpu_choice}" == *'UHD Graphics'* ]]; then
 		gpu_list="${gpu_list}Intel "
-		def_encode_on="Intel"
+		def_encoder="Intel"
 	fi
 	if [[ "{$gpu_choice}" == *'GeForce'* ]]; then
 		gpu_list="${gpu_list}Nvidia "
-		def_encode_on="CPU"
+		def_encoder="Nvidia"
 	fi
-	gpu_list="${gpu_list}CPU "
+	gpu_list="${gpu_list}CPU"
+}
 
-	printf "${gpu_selection}"
+detect_gpu_vp9 () {
+	gpu_choice=$(lspci | grep -i '.* vga .*')
+
+	if [[ "{$gpu_choice}" == *'UHD Graphics'* ]]; then
+		gpu_list="${gpu_list}Intel "
+		def_encoder="Intel"
+	fi
+	gpu_list="${gpu_list}CPU"
 }
 
 do_you_want_to_overwrite () {
@@ -332,9 +370,10 @@ manage_input_at_once () {
 
 
 set_reencode_pro () {
+	
+	shift
 	value="${1}"
 	auto="${value//*?-/}"
-	shift
 
 	load_language
 
@@ -354,54 +393,53 @@ set_reencode_pro () {
 }
 
 set_reencode_h264 () {
+	
+	shift
 	value="${1}"
 	vcodec="${value}"
-	
+
+	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
+
+	detect_gpu_h264_hevc
 	load_language
 
-	############### Detect compatible GPu and choose which encode protocol is used. Important values are decided fron this function
-
-	detect_gpu
-	encode_on="CPU"
-	if [ ! "{$gpu_list}" = "CPU " ]; then
-		encode_on=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_encode_input_text}" $gpu_list) || \
+	if [ "${gpu_list}" != "CPU" ]; then
+		encoder=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_encode_input_text}" $gpu_list) || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		if [ "${encode_on}" = "" ]; then encode_on="${def_encode_on}"
+		if [ "${encoder}" = "" ]; then encoder="${def_encoder}"
 		fi
 	
-		if [ "${encode_on}" = "Intel" ]; then
+		if [ "${encoder}" = "Intel" ]; then
 			vcodec="h264_qsv"
-		elif [ "${encode_on}" = "Nvidia" ]; then
+		elif [ "${encoder}" = "Nvidia" ]; then
 			vcodec="h264_nvenc"
-		elif [ "${encode_on}" = "CPU" ]; then
+		elif [ "${encoder}" = "CPU" ]; then
 			vcodec="libx264"
 		fi
-	#DEBUGprintf "${vcodec}"
 	fi
 
 	############### Default values depending of the protocol
 
 	if [ "${vcodec}" = "h264_qsv" ]; then
-		
+		def_quality=medium
 		quality_list=("veryfast faster fast medium slow slower veryslow")
 	elif [ "${vcodec}" = "h264_nvenc" ]; then
-
+		def_quality=p4
 		quality_list=("p1 p2 p3 p4 p5 p6 p7")
 	elif [ "${vcodec}" = "libx264" ]; then
-		min_bitrate=0; max_bitrate=51;		def_bitrate=23; def_quality=medium;
+		def_bitrate=23; def_quality=medium;
 		quality_list=("ultrafast superfast veryfast faster fast medium slow slower veryslow")
-		printf "${max_bitrate}"
 	fi
 	
 	############### Ask for tweaking depending of the protocol
 
 	valid_value="false"
-	shift
 
+	min_bitrate=0; max_bitrate=51;
 	load_language
 
 	if [ "${vcodec}" = "libx264" ]; then
-		
+
 		while [ "${valid_value}" = "false" ]; do
 			bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
@@ -411,10 +449,82 @@ set_reencode_h264 () {
 			if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
 				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
 				valid_value="false"
-				printf "${valid_value}"
 			fi
 		done
+	
+	opt_bitrate=" -crf $bitrate"
+	fi
+	
+	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${quality}" = "" ]; then quality="${def_quality}" 
+	fi
 
+	ask_overwrite=true
+
+	manage_input_separately "${@}"
+}
+
+set_reencode_hevc () {
+	
+	shift
+	value="${1}"
+	vcodec="${value}"
+
+	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
+
+	detect_gpu_h264_hevc
+	load_language
+	
+	if [ "${gpu_list}" != "CPU" ]; then
+		encoder=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_encode_input_text}" $gpu_list) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${encoder}" = "" ]; then encoder="${def_encoder}"
+		fi
+	
+		if [ "${encoder}" = "Intel" ]; then
+			vcodec="hevc_qsv"
+		elif [ "${encoder}" = "Nvidia" ]; then
+			vcodec="hevc_nvenc"
+		elif [ "${encoder}" = "CPU" ]; then
+			vcodec="libx265"
+		fi
+	fi
+
+	############### Default values depending of the protocol
+
+	if [ "${vcodec}" = "hevc_qsv" ]; then
+		def_quality=medium
+		quality_list=("veryfast faster fast medium slow slower veryslow")
+	elif [ "${vcodec}" = "hevc_nvenc" ]; then
+		def_quality=p4
+		quality_list=("p1 p2 p3 p4 p5 p6 p7")
+	elif [ "${vcodec}" = "libx265" ]; then
+		def_bitrate=28; def_quality=medium;
+		quality_list=("ultrafast superfast veryfast faster fast medium slow slower veryslow")
+	fi
+	
+	############### Ask for tweaking depending of the protocol
+
+	valid_value="false"
+
+	min_bitrate=0; max_bitrate=51;
+	load_language
+
+	if [ "${vcodec}" = "libx265" ]; then
+
+		while [ "${valid_value}" = "false" ]; do
+			bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
+				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+
+			valid_value="true"
+
+			if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
+				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+				valid_value="false"
+			fi
+		done
+	
 	opt_bitrate=" -crf $bitrate"
 	fi
 	
@@ -429,44 +539,73 @@ set_reencode_h264 () {
 }
 
 set_reencode_vp9 () {
+
+	shift
 	value="${1}"
 	vcodec="${value}"
 
-	min_bitrate=0
-	max_bitrate=63
-	def_bitrate=31
-	def_quality=good
+	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
+
+	detect_gpu_vp9
+	load_language
+	
+	if [ "${gpu_list}" != "CPU" ]; then
+		encoder=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_encode_input_text}" $gpu_list) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${encoder}" = "" ]; then encoder="${def_encoder}"
+		fi
+	
+		if [ "${encoder}" = "Intel" ]; then
+			vcodec="vp9_qsv"
+		elif [ "${encoder}" = "CPU" ]; then
+			vcodec="libvpx-vp9"
+		fi
+	fi
+
+	############### Default values depending of the protocol
+
+	if [ "${vcodec}" = "vp9_qsv" ]; then
+		def_quality=medium; multithread=0;
+		quality_list=("veryfast faster fast medium slow slower veryslow")
+	elif [ "${vcodec}" = "libvpx-vp9" ]; then
+		def_bitrate=31; def_quality=good; multithread=0;
+		quality_list=("best good realtime")
+	fi
+
+	############### Ask for tweaking depending of the protocol
 
 	valid_value="false"
-	vp9_quality_list=("best good realtime")
-	
-	shift
 
+	min_bitrate=0; max_bitrate=63;
 	load_language
 
-	while [ "${valid_value}" = "false" ]; do
-		bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		
-		valid_value="true"
-		
-		if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
-			"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
-			valid_value="false"
-			printf "${valid_value}"
-		fi
-	done
+	if [ "${vcodec}" = "libvpx-vp9" ]; then
+		while [ "${valid_value}" = "false" ]; do
+			bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
+				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 
-	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $vp9_quality_list) || \
+			valid_value="true"
+
+			if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
+				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+				valid_value="false"
+			fi
+		done
+	
+	opt_bitrate=" -crf $bitrate"
+	fi
+
+	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 	if [ "${quality}" = "" ]; then quality="${def_quality}"
 	fi
 
-	"${kdialog_bin}" --icon configure --title "${!msg_title}" --yesno "${msg_multithread_input_text}" && multithread=1 || \
-		{ [ $? -eq 1 ] && multithread=0 || \
-				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		}
-	printf "${multithread}"
+	if [ "${vcodec}" = "libvpx-vp9" ]; then	
+		"${kdialog_bin}" --icon configure --title "${!msg_title}" --yesno "${msg_multithread_input_text}" && multithread=1 || \
+			{ [ $? -eq 1 ] && multithread=0 || \
+					{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+			}
+	fi
 
 	ask_overwrite=true
 
