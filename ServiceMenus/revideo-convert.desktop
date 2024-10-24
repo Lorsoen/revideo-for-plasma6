@@ -18,7 +18,7 @@
 #
 
 [Desktop Entry]
-Actions=h264;h265;vp9
+Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo reencode professionaly service menu
@@ -49,3 +49,17 @@ Exec=revideo-kdialog reencode_vp9 libvpx-vp9 %F
 Icon=video-webm
 Name=Convert to VP9
 Name[fr]=Convertir en VP9
+
+---------------------------------------------
+
+[Desktop Action prores]
+Exec=revideo-kdialog reencode_prores prores %F
+Icon=video-quicktime
+Name=Convert to ProRes
+Name[fr]=Convertir en ProRes
+
+[Desktop Action dnxhd]
+Exec=revideo-kdialog reencode_dnxhd dnxhd %F
+Icon=video-webm
+Name=Convert to DNxHD
+Name[fr]=Convertir en DNxHD

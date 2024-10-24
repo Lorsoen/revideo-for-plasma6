@@ -44,6 +44,8 @@ load_language_en_US () {
 	msg_compress_quality_input_text="Type the quality:"
 	msg_compress_finish_title="Compression of \"${name}\""
 
+	msg_dnxhd_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
+	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}${new_line}When in doubt, choose 'Auto'.${new_line}"
 	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Lower equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
 	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${new_line}Slower equals better quality but slower encoding / decoding time.${new_line}"
 	msg_gpu_encode_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
@@ -83,38 +85,37 @@ help () {
 
 ######################################## Run Convert pro
 
-run_reencode_pro () {
+run_reencode_dnxhd () {
 ##&& [ "${ext}" = ".mov" ];
 
-	if [ "${auto}" = "auto" ];  then
-
-		if [ "${overwrite}" = true ];  then
-			sleep 0.8
-			cp "${input}" "${dir}/${base}_TEMP.mov"
-			rm "${input}"
-			########### FFMPEG does not cache files being reencoded
-
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -c:a copy "${input}" 2>&1)
-			rm "${dir}/${base}_TEMP.mov"
-		else
-			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
-		fi
-
+	if [ "${overwrite}" = true ];  then
+		sleep 0.8
+		cp "${input}" "${dir}/${base}_TEMP.mov"
+		rm "${input}"
+		########### FFMPEG does not cache files being reencoded
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${vprofile}"s -c:a copy "${input}" 2>&1)
+		rm "${dir}/${base}_TEMP.mov"
 	else
+		sleep 0.8
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${vprofile}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+	fi
+		
+	return $?
+}
 
-		if [ "${overwrite}" = true ];  then
-			cp "${input}" "${dir}/${base}_TEMP.mov"
-			rm "${input}"
-			########### FFMPEG does not cache files being reencoded
+run_reencode_prores () {
+##&& [ "${ext}" = ".mov" ];
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${input}" 2>&1)
-			rm "${dir}/${base}_TEMP.mov"
-		else
-			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${profile}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
-		fi
-
+	if [ "${overwrite}" = true ];  then
+		sleep 0.8
+		cp "${input}" "${dir}/${base}_TEMP.mov"
+		rm "${input}"
+		########### FFMPEG does not cache files being reencoded
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -c:v "${vcodec}"$opt_profile -c:a copy "${input}" 2>&1)
+		rm "${dir}/${base}_TEMP.mov"
+	else
+		sleep 0.8
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}"${opt_profile} -c:a copy "${dir}/${base}_converted.mov" 2>&1)
 	fi
 		
 	return $?
@@ -366,26 +367,83 @@ manage_input_at_once () {
 
 }
 
-######################################## Set compress and resize input
+######################################## Set convert video
 
-
-set_reencode_pro () {
+set_reencode_dnxhd () {
 	
-	shift
 	value="${1}"
-	auto="${value//*?-/}"
+	vcodec="${value}"
+	shift
+
+	############### Default values depending of the protocol
+
+	def_profile="DNxHR(HQ)"
+	profile_list=("DNxHR(LB) DNxHR(SQ) DNxHR(HQ) DNxHR(HQX) DNxHR(444)")
+
+	############### Ask for tweaking depending of the protocol
 
 	load_language
 
-	if [ "${value}" = "custom" ] && { formats; exit 0; }; then
-		vcodec=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_codec_encode_input_text}") || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_profile_encode_input_text}") || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	else
-		vcodec="${value//-?*/}"
-		profile="${value//*?-/}"
-	fi	
+	profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_dnxhd_profile_encode_input_text}" $profile_list) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${profile}" = "" ]; then profile="${def_profile}" 
+	fi
+
+	if [ "${profile}" = "DNxHR(LB)" ]; then
+		vprofile="dnxhr_lb"
+	elif [ "${profile}" = "DNxHR(SQ)" ]; then
+		vprofile="dnxhr_sq"
+	elif [ "${profile}" = "DNxHR(HQ)" ]; then
+		vprofile="dnxhr_hq"
+	elif [ "${profile}" = "DNxHR(HQX)" ]; then
+		vprofile="dnxhr_hqx"
+	elif [ "${profile}" = "DNxHR(444)" ]; then
+		vprofile="dnxhr_444"
+	fi
+	
+	ask_overwrite=true
+
+	manage_input_separately "${@}"
+}
+
+
+set_reencode_prores () {
+	
+	value="${1}"
+	vcodec="${value}"
+	shift
+
+	############### Default values depending of the protocol
+
+	def_profile=Auto
+	profile_list=("Auto 422(Proxy) 422(LT) 422(Standard) 422(HQ) 4444 4444(XQ)")
+
+	############### Ask for tweaking depending of the protocol
+
+	load_language
+
+	profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_prores_profile_encode_input_text}" $profile_list) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${profile}" = "" ]; then profile="${def_profile}" 
+	fi
+
+	if [ "${profile}" = "422(Proxy)" ]; then
+		vprofile="0"
+	elif [ "${profile}" = "422(LT)" ]; then
+		vprofile="1"
+	elif [ "${profile}" = "422(Standard)" ]; then
+		vprofile="2"
+	elif [ "${profile}" = "422(HQ)" ]; then
+		vprofile="3"
+	elif [ "${profile}" = "4444" ]; then
+		vprofile="4"
+	elif [ "${profile}" = "4444(XQ)" ]; then
+		vprofile="5"
+	fi
+
+	if [ "${profile}" != "Auto" ]; then
+		opt_profile=" -profile:v $vprofile"
+	fi
 	
 	ask_overwrite=true
 
@@ -394,10 +452,11 @@ set_reencode_pro () {
 
 set_reencode_h264 () {
 	
-	shift
 	value="${1}"
 	vcodec="${value}"
+	shift
 
+	printf "${vcodec}"
 	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
 
 	detect_gpu_h264_hevc
@@ -461,7 +520,7 @@ set_reencode_h264 () {
 	fi
 
 	ask_overwrite=true
-
+	
 	manage_input_separately "${@}"
 }
 
