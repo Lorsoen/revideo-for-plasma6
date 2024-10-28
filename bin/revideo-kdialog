@@ -26,8 +26,12 @@ new_line="
 "
 
 load_language_en_US () {
+	### Messages
+
 	msg_common_software_not_found_title="Software not found"
 	msg_common_ffmpeg_not_found_text="Software Ffmpeg not found! Please, install it."
+	msg_common_rife_not_found_text="Software RIFE not found! Please, install it."
+	msg_common_dain_not_found_text="Software DAIN not found! Please, install it."
 	msg_common_action_not_found_text="The requested action is not implemented."
 	msg_common_overwrite_text="In case the images to be saved have the same name as those to be processed,${new_line}do you want to overwrite them?"
 	msg_common_abort="Operation interrupted by the user."
@@ -44,6 +48,11 @@ load_language_en_US () {
 	msg_compress_quality_input_text="Type the quality:"
 	msg_compress_finish_title="Compression of \"${name}\""
 
+	msg_gpu_interpolate_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for interpolation ($def_model by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU, which is slow!${new_line}"
+
+	msg_afallback_encode_input_text="'${base}.${ext}''s audio codec is not known from revideo.${new_line}It will fallback to either a lossless codec (PCM) or a lossy one (Opus)${new_line}($def_afallback by default)${new_line}${new_line}Choose one:${new_line}"
+	msg_vfallback_encode_input_text="'${base}.${ext}''s video codec is not known from revideo.${new_line}It will fallback to either a lossless codec (ProRes) or a lossy one (h264)${new_line}($def_vfallback by default)${new_line}${new_line}Choose one:${new_line}"
+	
 	msg_dnxhd_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
 	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}${new_line}When in doubt, choose 'Auto'.${new_line}"
 	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Lower equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
@@ -62,6 +71,9 @@ load_language_en_US () {
 	msg_rotate_angle_input_text="Enter the desired rotation angle:"
 	msg_rotate_finish_title="Rotation \"${name}\""
 
+	### Localizables
+	loc_lossless="Lossless"
+	loc_lossy="Lossy"
 }
 
 load_language () {
@@ -132,11 +144,11 @@ run_reencode_h264 () {
 		rm "${input}"
 		########### FFMPEG does not cache files being reencoded
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${input}" 2>&1)	
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${input}" 2>&1)	
 		rm "${dir}/${base}_TEMP.mov"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}_converted.mp4" 2>&1)
 	fi
 		
 	return $?
@@ -147,15 +159,15 @@ run_reencode_hevc () {
 
 	if [ "${overwrite}" = true ];  then		
 		sleep 0.8
-		cp "${input}" "${dir}/${base}_TEMP.mov"
+		cp "${input}" "${dir}/${base}_TEMP.mp4"
 		rm "${input}"
 		########### FFMPEG does not cache files being reencoded
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${input}" 2>&1)	
-		rm "${dir}/${base}_TEMP.mov"
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.mov" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${input}" 2>&1)	
+		rm "${dir}/${base}_TEMP.mp4"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${quality}" "${dir}/${base}_converted.mp4" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}_converted.mp4" 2>&1)
 	fi
 		
 	return $?
@@ -171,13 +183,13 @@ run_reencode_vp9 () {
 			rm "${input}"
 			########### FFMPEG does not cache files being reencoded
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1)
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" "${input}" 2>&1)
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1)
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" "${input}" 2>&1)
 			rm "${dir}/${base}_TEMP.mov"
 		else
 			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" -an -f null /dev/null && \ 2>&1)
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${quality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -an -f null /dev/null && \ 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
 		fi
 	elif [ "${vcodec}" = "vp9_qsv" ];  then
 		if [ "${overwrite}" = true ];  then		
@@ -186,11 +198,11 @@ run_reencode_vp9 () {
 			rm "${input}"
 			########### FFMPEG does not cache files being reencoded
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${quality}" -c:a libopus "${input}" 2>&1)
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${input}" 2>&1)
 			rm "${dir}/${base}_TEMP.mov"
 		else
 			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${quality}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
 		fi
 	fi
 
@@ -223,21 +235,127 @@ run_horizontal_disassemble () {
 }
 
 run_interpolate () {
-	if [ "${overwrite}" = true ];  then
-		fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-		fps_multiplied=$((${fps} * ${multiplicator}))
+	
+	base="${base}"
 
+	if [ "${value}" = "minterpolate" ]; then
+	
+		if [ "${overwrite}" = true ];  then
+			fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			fps_multiplied=$((${fps} * ${multiplicator}))
+
+			cp "${input}" "${dir}/${base}_TEMP.${ext}"
+			rm "${input}"
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.${ext}" -filter:v minterpolate -r "${fps_multiplied}" "${input}" 2>&1 )
+
+			rm "${dir}/${base}_TEMP.${ext}"
+
+		else
+			fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			fps_multiplied=$((${fps} * ${multiplicator}))
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${fps_multiplied}" "${dir}/${base}_interpolated.${ext}" 2>&1 )	
+		fi
+
+	else
+
+		if [ "${overwrite}" = true ];  then
+			fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			fps_multiplied=$((${fps} * ${multiplicator}))
+			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
+			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
+
+			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
+			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; opt_audio=" -i "$dir/$base audio_TEMP.$aext" -c:a copy"; fi
+
+			mkdir "${dir}/${base}_input_TEMP"
+			mkdir "${dir}/${base}_output_TEMP"
+
+			ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "${dir}/${base} audio_TEMP.${aext}"
+			ffmpeg -i "${dir}/${base}.${ext}" "${dir}/${base}_input_TEMP/frame_%08d.png"
+
+			cp "${input}" "${dir}/${base}_TEMP.${ext}"
+			rm "${input}"
+
+			"${value}" -i "${dir}/${base}_input_TEMP" -o "${dir}/${base}_output_TEMP"
+			msg=$("${ffmpeg_bin}" -framerate "${fps_multiplied}" -i "${dir}/${base}_output_TEMP/%08d.png"$opt_audio$opt_video "${input}" 2>&1 )
+
+			rm "${dir}/${base}_TEMP.${ext}"
+			rm -r "${dir}/${base}_input_TEMP"
+			rm -r "${dir}/${base}_output_TEMP"
+			rm "${dir}/${base} audio_TEMP.${aext}"
+		else
+			fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			fps_multiplied=$((${fps} * ${multiplicator}))
+			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
+			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
+
+			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
+			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; opt_audio=" -i "$dir/$base audio_TEMP.$aext" -c:a copy"; fi #opt_audio needs the double commas (syntax highlight may be weird)
+
+			mkdir "${dir}/${base}_input_TEMP"
+			mkdir "${dir}/${base}_output_TEMP"
+
+			ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "${dir}/${base} audio_TEMP.${aext}"
+			ffmpeg -i "${dir}/${base}.${ext}" "${dir}/${base}_input_TEMP/frame_%08d.png"
+
+			"${value}" -i "${dir}/${base}_input_TEMP" -o "${dir}/${base}_output_TEMP"
+			msg=$("${ffmpeg_bin}" -framerate "${fps_multiplied}" -i "${dir}/${base}_output_TEMP/%08d.png"$opt_audio$opt_video "${dir}/${base}_interpolated.${ext}" 2>&1 )
+
+			rm -r "${dir}/${base}_input_TEMP"
+			rm -r "${dir}/${base}_output_TEMP"
+			rm "${dir}/${base} audio_TEMP.${aext}"
+		fi
+
+	fi
+	return $?
+}
+
+######################################## Run adders / subtractors
+
+run_add_music () {
+
+msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" -filter_complex filter_complex "[0:v]trim=start=0[out0];[0:a]atrim=start=0[out1];[out1][1:a]sidechaingate=level_in=1:mode=downward:threshold=0.125:ratio=2:attack=20:release=250:makeup=1:knee=2.828427125:detection=rms[out2]" -map "[out0]" -map "[out2]" "${dir}/${base}_music_added.${ext}" 2>&1 )
+
+msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" -filter_complex "[0:v]trim=start=0[out0];[0:a]atrim=start=0[out1];[out1][1:a]amix=inputs=2:duration=longest:dropout_transition=2:weights=1 1:normalize=1[out2]" -map "[out0]" -map "[out2]" "${dir}/${base}_music_added.${ext}" 2>&1 )
+
+}
+
+#run_add_watermark () {
+#
+#
+#}
+
+######################################## Run filters
+
+run_sepia () {
+	
+	if [ "${overwrite}" = true ];  then
 		cp "${input}" "${dir}/${base}_TEMP.${ext}"
 		rm "${input}"
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.${ext}" -filter:v minterpolate -r "${fps_multiplied}" "${input}" 2>&1)
+		msg=$("${ffmpeg_bin}" -i "${dir}/${base}_TEMP.${ext}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${input}" 2>&1)
 
 		rm "${dir}/${base}_TEMP.${ext}"
 	else
-		fps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-		fps_multiplied=$((${fps} * ${multiplicator}))
+		msg=$("${ffmpeg_bin}" -i "${input}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${dir}/${base}_sepia.${ext}" 2>&1)
+	fi
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${fps_multiplied}" "${dir}/${base}_interpolated.${ext}" 2>&1)	
+	return $?
+}
+
+run_gray () {
+	
+	if [ "${overwrite}" = true ];  then
+		cp "${input}" "${dir}/${base}_TEMP.${ext}"
+		rm "${input}"
+
+		msg=$("${ffmpeg_bin}" -i "${dir}/${base}_TEMP.${ext}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${input}" 2>&1)
+
+		rm "${dir}/${base}_TEMP.${ext}"
+	else
+		msg=$("${ffmpeg_bin}" -i "${input}" -vf extractplanes=y -c:a copy "${dir}/${base}_gray.${ext}" 2>&1)
 	fi
 
 	return $?
@@ -278,6 +396,8 @@ run_rotate () {
 
 ########################################
 
+######################################## GPU detectors
+
 detect_gpu_h264_hevc () {
 	gpu_choice=$(lspci | grep -i '.* vga .*')
 
@@ -292,6 +412,20 @@ detect_gpu_h264_hevc () {
 	gpu_list="${gpu_list}CPU"
 }
 
+detect_gpu_interpolate () {
+	gpu_choice=$(lspci | grep -i '.* vga .*')
+
+	if [[ "{$gpu_choice}" == *'GeForce'* ]]; then
+		gpu_list="${gpu_list}Nvidia "
+		def_encoder="Nvidia"
+	fi
+	if [[ "{$gpu_choice}" == *'Radeon'* ]]; then
+		gpu_list="${gpu_list}AMD "
+		def_encoder="AMD"
+	fi
+	gpu_list="${gpu_list}CPU"
+}
+
 detect_gpu_vp9 () {
 	gpu_choice=$(lspci | grep -i '.* vga .*')
 
@@ -300,6 +434,209 @@ detect_gpu_vp9 () {
 		def_encoder="Intel"
 	fi
 	gpu_list="${gpu_list}CPU"
+}
+
+######################################## Video / Audio codec detector (Used for AIs who need to dissasemble the videos)
+
+detect_video_codec () {
+
+	def_vfallback=$loc_lossless
+
+	vfallback_list=("$loc_lossless $loc_lossy")
+
+	## Prores
+	if [[ ${detect_vcodec} = *"prores"* ]]; then
+	vcodec="prores"
+	opt_video=" -c:v $vcodec"
+		if [[ ${detect_vcodec} = *"(Proxy)"* ]]; then
+		vprofile=0
+		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		elif [[ ${detect_vcodec} = *"(LT)"* ]]; then
+		vprofile=1
+		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		elif [[ ${detect_vcodec} = *"(Standard)"* ]]; then
+		vprofile=2
+		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		elif [[ ${detect_vcodec} = *"(HQ)"* ]]; then
+		vprofile=3
+		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		elif [[ ${detect_vcodec} = *"(4444)"* ]]; then
+		vprofile=4
+		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		elif [[ ${detect_vcodec} = *"(XQ)"* ]]; then
+		vprofile=5
+		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		fi
+
+	## DNXHD
+	elif [[ ${detect_vcodec} = *"dnxhd"* ]]; then
+	opt_video=" -c:v $vcodec -profile:v $vprofile"
+		if [[ ${detect_vcodec} = *"(DNXHR LB)"* ]]; then
+		vcodec="dnxhr_lb"
+		elif [[ ${detect_vcodec} = *"(DNXHR SQ)"* ]]; then
+		vcodec="dnxhr_sq"
+		elif [[ ${detect_vcodec} = *"(DNXHR HQ)"* ]]; then
+		vcodec="dnxhr_hq"
+		elif [[ ${detect_vcodec} = *"(DNXHR HQX)"* ]]; then
+		vcodec="dnxhr_hqx"
+		elif [[ ${detect_vcodec} = *"(DNXHR 444)"* ]]; then
+		vcodec="dnxhr_444"
+		fi
+
+	## H264
+	elif [[ ${detect_vcodec} = *"h264"* ]]; then
+	vcodec="libx264"; vbitrate=20; vquality=normal
+	opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
+		
+		if [[ ${detect_vcodec} = *"h264"* ]] && [ def_encoder="Nvidia" ]; then
+		vcodec="h264_nvenc"; vquality=p4
+		opt_video=" -c:v $vcodec -preset $vquality"
+		
+		elif [[ ${detect_vcodec} = *"h264"* ]] && [ def_encoder="Intel" ]; then
+		vcodec="h264_qsv"; vquality=slow
+		opt_video=" -c:v $vcodec -preset $vquality"
+		fi
+
+	## NVENC
+	elif [[ ${detect_vcodec} = *"nvenc"* ]]; then
+	vcodec="libx265"; vbitrate=23; vquality=normal
+	opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
+		
+		if [[ ${detect_vcodec} = *"nvenc"* ]] && [ def_encoder="Nvidia" ]; then
+		vcodec="hevc_nvenc"; vquality=p4
+		opt_video=" -c:v $vcodec -preset $vquality"
+		fi
+
+	## VP9
+	elif [[ ${detect_vcodec} = *"vp9"* ]]; then
+	vcodec="libvpx_vp9"; vbitrate=27; vquality=good
+	opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
+		if [[ ${detect_vcodec} = *"vp9"* ]] && [ def_encoder="Intel" ]; then
+		vcodec="vp9_qsv"; vquality=medium
+		opt_video=" -c:v $vcodec -preset $vquality"
+		fi
+
+	else 
+		load_language
+
+		vcodec=""; vprofile=""; vquality=""; vbitrate=""
+
+		vfallback=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_vfallback_encode_input_text}" $vfallback_list) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${fallback}" = "" ]; then fallback="${def_vfallback}" 
+		fi
+		
+		if [ $vfallback=$loc_lossless ]; then
+			if [ "${overwrite}"=true ]; then
+				sleep 0.8
+				cp "${input}" "${dir}/${base}_TEMP.${ext}"
+				rm "${input}"
+				########### FFMPEG does not cache files being reencoded
+
+				< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v prores -c:a copy "${input}" 2>&1)
+				rm "${dir}/${base}_TEMP.${ext}"
+			
+			else
+				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v prores -c:a copy "${dir}/${base}_converted.${ext}" 2>&1)
+				base="${base}_converted"
+			fi
+		elif [ $vfallback=$loc_lossy ]; then
+			if [ "${overwrite}"=true ]; then
+				sleep 0.8
+				cp "${input}" "${dir}/${base}_TEMP.${ext}"
+				rm "${input}"
+				########### FFMPEG does not cache files being reencoded
+
+				< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.${ext}" -c:v prores -c:a copy "${input}" 2>&1)
+				rm "${dir}/${base}_TEMP.${ext}"
+			else
+				if [ detect_vcodec = *"h264"* ] && [ def_encoder="Nvidia" ]; then
+				vcodec="h264_nvenc"; vquality=p4
+				opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
+				elif [ detect_vcodec = *"h264"* ] && [ def_encoder="Intel" ]; then
+				vcodec="h264_qsv"; vquality=slow
+				else
+				vcodec="libx264"; vbitrate=23; vquality=normal
+				opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
+				fi
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.${ext}" 2>&1)
+			base="${base}_converted"
+				
+			fi
+		fi
+
+	fi
+}
+
+detect_audio_codec () {
+
+	def_afallback=${loc_lossless}
+
+	afallback_list=("$loc_lossless $loc_lossy")
+
+	## PCM
+	if [[ ${detect_acodec} = *"pcm"* ]]; then
+	profile=ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -o -P '(?<=pcm_).*?(?= \()'
+	acodec="pcm_$profile"; aext="waw"
+
+	## AAC
+	elif [[ ${detect_acodec} = *"aac"* ]]; then
+	acodec="aac"; aext="m4a"
+
+	## Opus
+	elif [[ ${detect_acodec} = *"opus"* ]]; then
+	acodec="opus"; aext="ogg"
+
+	## Alac
+	elif [[ ${detect_acodec} = *"alac"* ]]; then
+	acodec="alac"; aext="mp3"
+
+	## Flac
+	elif [[ ${detect_acodec} = *"flac"* ]]; then
+	acodec="flac"; aext="flac"
+
+	else
+		load_language
+
+		acodec=""; aext=""
+
+		afallback=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_afallback_encode_input_text}" $afallback_list) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${afallback}" = "" ]; then afallback="${def_afallback}" 
+		fi
+		
+		if [ "${afallback}" = "${loc_lossless}" ]; then
+			acodec="pcm"; aext="waw"
+			if [ "${overwrite}"=true ]; then
+				printf "WRITE_LOSSLESS"
+				sleep 0.8
+				cp "${input}" "${dir}/${base}_TEMP.${ext}"
+				rm "${input}"
+				########### FFMPEG does not cache files being reencoded
+
+				< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.${ext}" -c:v copy -c:a pcm_s16le "${input}" 2>&1)
+				rm "${dir}/${base}_TEMP.${ext}"
+			
+			else
+				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a pcm_s16le "${dir}/${base}_converted.${ext}" 2>&1)
+				base="${base}_converted"
+			fi
+		elif [ "${afallback}" = "${loc_lossy}" ]; then
+			acodec="opus"; aext="ogg"
+			if [ "${overwrite}"=true ]; then
+				cp "${input}" "${dir}/${base}_TEMP.${ext}"
+				rm "${input}"
+				########### FFMPEG does not cache files being reencoded
+
+				< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${dir}/${base}_TEMP.${ext}" -c:v copy -c:a libopus "${input}" 2>&1)
+				rm "${dir}/${base}_TEMP.${ext}"
+			else
+				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a libopus "${dir}/${base}_converted.${ext}" 2>&1)
+				base="${base}_converted"
+			fi
+		fi
+
+	fi
 }
 
 do_you_want_to_overwrite () {
@@ -456,7 +793,7 @@ set_reencode_h264 () {
 	vcodec="${value}"
 	shift
 
-	printf "${vcodec}"
+	
 	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
 
 	detect_gpu_h264_hevc
@@ -500,7 +837,7 @@ set_reencode_h264 () {
 	if [ "${vcodec}" = "libx264" ]; then
 
 		while [ "${valid_value}" = "false" ]; do
-			bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
+			vbitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 
 			valid_value="true"
@@ -511,12 +848,12 @@ set_reencode_h264 () {
 			fi
 		done
 	
-	opt_bitrate=" -crf $bitrate"
+	opt_bitrate=" -crf $vbitrate"
 	fi
 	
-	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
+	vquality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	if [ "${quality}" = "" ]; then quality="${def_quality}" 
+	if [ "${vquality}" = "" ]; then vquality="${def_quality}" 
 	fi
 
 	ask_overwrite=true
@@ -587,9 +924,9 @@ set_reencode_hevc () {
 	opt_bitrate=" -crf $bitrate"
 	fi
 	
-	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
+	vquality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	if [ "${quality}" = "" ]; then quality="${def_quality}" 
+	if [ "${vquality}" = "" ]; then vquality="${def_quality}" 
 	fi
 
 	ask_overwrite=true
@@ -602,6 +939,7 @@ set_reencode_vp9 () {
 	shift
 	value="${1}"
 	vcodec="${value}"
+	
 
 	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
 
@@ -654,9 +992,9 @@ set_reencode_vp9 () {
 	opt_bitrate=" -crf $bitrate"
 	fi
 
-	quality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
+	vquality=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_quality_encode_input_text}" $quality_list) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	if [ "${quality}" = "" ]; then quality="${def_quality}"
+	if [ "${vquality}" = "" ]; then vquality="${def_quality}"
 	fi
 
 	if [ "${vcodec}" = "libvpx-vp9" ]; then	
@@ -691,18 +1029,39 @@ set_rewrap () {
 }
 
 set_interpolate () {
+	value="${1}"
+	shift
+	############### Default values depending of the protocol
 	def_multi=2
+	def_model=RIFE
 	multiplicator_list=("2 4 6 8")
+	model_list=("$rife_list $dain_list Minterpolate")
+
+	detect_gpu_interpolate
+
+	load_language
+
+	if [ "${gpu_list}" != "CPU" ] && [ ! -z "${rife_bin}" ]; then
+		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_interpolate_input_text}" $model_list) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${model}" = "" ]; then model="${def_model}" 
+		fi
+
+		if [ "${model}" = "RIFE" ]; then
+			value="${rife_bin}"
+		elif [ "${model}" = "DAIN" ]; then
+			value="${dain_bin}"
+		elif [ "${model}" = "Minterpolate" ]; then
+			value="minterpolate"
+		fi
+	fi
 
 	multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 	if [ "${multiplicator}" = "" ]; then multiplicator="${def_multi}" 
 	fi
 
-	for arg in "$@"; do
-		arg_ext="${arg##*.}"
-		[ "${arg_ext}" = "${format}" ] && ask_overwrite=true && break
-	done
+	ask_overwrite=true
 
 	manage_input_separately "${@}"
 }
@@ -718,6 +1077,46 @@ set_overturn () {
 
 	manage_input_separately "${@}"
 }
+
+######################################## Run adders / subtractors
+
+set_add_music () {
+
+	add_input=$("${kdialog_bin}" --title "${!msg_title}" --icon document-open --getopenfilename " " ) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+
+	add_input_name="${add_input##*/}"
+	add_input_base="${add_input%.*}"
+
+	manage_input_separately "${@}"
+}
+
+#set_add_watermark () {
+#
+#}
+
+######################################## Run filters
+
+
+set_sepia () {
+	for arg in "$@"; do
+		arg_ext="${arg##*.}"
+		[ "${arg_ext}" = "${format}" ] && ask_overwrite=true && break
+	done
+
+	manage_input_separately "${@}"
+}
+
+set_gray () {
+	for arg in "$@"; do
+		arg_ext="${arg##*.}"
+		[ "${arg_ext}" = "${format}" ] && ask_overwrite=true && break
+	done
+
+	manage_input_separately "${@}"
+}
+
+##################################################### Run Rotate
 
 set_rotate () {
 	value="${1}"
@@ -750,12 +1149,23 @@ set_horizontal_disassemble () {
 
 [ "${1}" = "-h" ] || [ "${1}" = "--help" ] || [ ${#} -lt 2 ] && help
 
+########################### Mandatory
+
 kdialog_bin=$(which kdialog)
 [ -z "${kdialog_bin}" ] && echo "kdialog not found!" && exit 1
 
 ffmpeg_bin=$(which ffmpeg)
 [ -z "${ffmpeg_bin}" ] && \
 	"${kdialog_bin}" --icon configure --title "${msg_common_software_not_found_title}" --error "${msg_common_ffmpeg_not_found_text}" && exit 2
+
+########################### Optional
+
+rife_bin=$(which /usr/share/rife-ncnn-vulkan/rife-ncnn-vulkan)
+[ ! -z "${rife_bin}" ] && rife_list="RIFE"
+
+dain_bin=$(which /usr/share/dain-ncnn-vulkan/dain-ncnn-vulkan)
+[ ! -z "${dain_bin}" ] && dain_list="DAIN"
+	
 
 action="${1}"
 shift

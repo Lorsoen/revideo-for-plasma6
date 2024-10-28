@@ -1,0 +1,155 @@
+#
+# 	Part of kde-service-menu-revideo Version 0.1.2
+# 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
+# 	Copyright (C) 2024 <fashim99.(at)gmail.com>
+#
+# 	This program is free software: you can redistribute it and/or modify
+# 	it under the terms of the GNU General Public License as published by
+# 	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#
+# 	This program is distributed in the hope that it will be useful,
+# 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+# 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# 	GNU General Public License for more details.
+#
+# 	You should have received a copy of the GNU General Public License
+# 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+[Desktop Entry]
+Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts;_SEPARATOR_;rotate_90;rotate_180;rotate_270;rotate_custom;_SEPARATOR_;flip;flop
+MimeType=video/*
+X-KDE-Priority=TopLevel
+Name=ReVideo convert and rotate service menu
+ServiceTypes=KonqPopupMenu/Plugin,video/*
+TryExec=revideo-kdialog
+Type=Service
+X-KDE-Submenu=Reencode / Rotation
+X-KDE-Submenu[fr]=Réencodage / Rotation
+Terminal=true
+TerminalOptions=\s--noclose
+
+################################################################################
+
+[Desktop Action h264]
+Exec=revideo-kdialog reencode_h264 libx264 %F
+Icon=video-x-wmv
+Name=Convert to H264
+Name[fr]=Convertir en H264
+
+[Desktop Action h265]
+Exec=revideo-kdialog reencode_hevc libx265 %F
+Icon=video-x-wmv
+Name=Convert to HEVC
+Name[fr]=Convertir en HEVC
+
+[Desktop Action vp9]
+Exec=revideo-kdialog reencode_vp9 libvpx-vp9 %F
+Icon=video-webm
+Name=Convert to VP9
+Name[fr]=Convertir en VP9
+
+---------------------------------------------
+
+[Desktop Action prores]
+Exec=revideo-kdialog reencode_prores prores %F
+Icon=video-quicktime
+Name=Convert to ProRes
+Name[fr]=Convertir en ProRes
+
+[Desktop Action dnxhd]
+Exec=revideo-kdialog reencode_dnxhd dnxhd %F
+Icon=video-webm
+Name=Convert to DNxHD
+Name[fr]=Convertir en DNxHD
+
+[Desktop Action mkv]
+Exec=revideo-kdialog rewrap mkv %F
+Icon=video-x-matroska
+Name=Rewrap in MKV
+Name[fr]=Réencapsuler en MKV
+
+[Desktop Action mp4]
+Exec=revideo-kdialog rewrap mp4 %F
+Icon=video-mp4
+Name=Rewrap in en MP4
+Name[fr]=Réencapsuler en MP4
+
+[Desktop Action mov]
+Exec=revideo-kdialog rewrap mov %F
+Icon=video-quicktime
+Name=Rewrap in MOV
+Name[fr]=Réencapsuler en MOV
+
+[Desktop Action avi]
+Exec=revideo-kdialog rewrap avi %F
+Icon=video-x-wmv
+Name=Rewrap in AVI
+Name[fr]=Réencapsuler en AVI
+
+---------------------------------------------
+
+[Desktop Action mxf]
+Exec=revideo-kdialog rewrap mxf %F
+Icon=video-webm
+Name=Rewrap in MXF
+Name[fr]=Réencapsuler en MXF
+
+[Desktop Action mts]
+Exec=revideo-kdialog rewrap mts %F
+Icon=video-webm
+Name=Rewrap in MTS
+Name[fr]=Réencapsuler en MTS
+
+[Desktop Action m2ts]
+Exec=revideo-kdialog rewrap m2ts %F
+Icon=video-webm
+Name=Rewrap in M2TS
+Name[fr]=Réencapsuler en M2TS
+
+[Desktop Action ts]
+Exec=revideo-kdialog rewrap ts %F
+Icon=video-webm
+Name=Rewrap in TS
+Name[fr]=Réencapsuler en TS
+
+---------------------------------------------
+
+[Desktop Action rotate_90]
+Exec=revideo-kdialog rotate 90 %F
+Icon=image-rotate-right-symbolic
+Name=Rotate 90°
+Name[fr]=Pivoter de 90°
+
+[Desktop Action rotate_180]
+Exec=revideo-kdialog rotate 180 %F
+Icon=image-rotate-right-symbolic
+Name=Rotate 180°
+Name[fr]=Pivoter de 180°
+
+[Desktop Action rotate_270]
+Exec=revideo-kdialog rotate 270 %F
+Icon=image-rotate-left-symbolic
+Name=Rotate -90°
+Name[fr]=Pivoter de -90°
+
+[Desktop Action rotate_custom]
+Exec=revideo-kdialog rotate custom %F
+Icon=view-refresh
+Name=Rotate...
+Name[fr]=Pivoter de...
+
+---------------------------------------------
+
+[Desktop Action flip]
+Exec=revideo-kdialog overturn vflip %F
+Icon=image-flip-vertical-symbolic
+Name=Overturn vertically
+Name[fr]=Retourner verticalement
+
+[Desktop Action flop]
+Exec=revideo-kdialog overturn hflip %F
+Icon=image-flip-horizontal-symbolic
+Name=Overturn horizontally
+Name[fr]=Retourner horizontalement
