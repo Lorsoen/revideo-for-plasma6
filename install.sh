@@ -113,15 +113,15 @@ case $fav in
         sudo pacman -S --noconfirm --quiet yay
         sudo pacman -S --noconfirm --quiet python-pipx
         # Video Restoration
-        yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
+        #yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
         # Video Upscale
-        yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
+        #yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
         # Interpolation
         yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
         # Audio separation
-        pipx install openunmix
+        #pipx install openunmix
         # Transcript
-        pipx install whisperx
+        #pipx install whisperx
         ;;      
 
     ("Everything you have!")
@@ -139,21 +139,21 @@ case $fav in
         # install extra dependencies
 
         # Package managers
-        #sudo pacman -S --noconfirm --quiet yay
-        #sudo pacman -S --noconfirm --quiet python-pipx
+        sudo pacman -S --noconfirm --quiet yay
+        sudo pacman -S --noconfirm --quiet python-pipx
         ## Video Restoration
         #yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
         ## Video Upscale
         #yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
         #yay -S --noconfirm --quiet realsr-ncnn-vulkan-python
         ## Interpolation
-        #yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
-        #yay -S --noconfirm --quiet dain-ncnn-vulkan-bin
+        yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
+        yay -S --noconfirm --quiet dain-ncnn-vulkan-bin
         ## Audio separation
         #pipx install openunmix
         ## Transcript
         #pipx install openai-whisper
-        pipx install whisperx
+        #pipx install whisperx
         ;;    
 
     (*) 
