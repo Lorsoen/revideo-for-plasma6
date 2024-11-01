@@ -143,3 +143,4 @@ Exec=reimage-kdialog timestamp %F
 Icon=knotes_date
 Name=Add timestamp from Exif
 Name[fr]=Ajouter un horodatage depuis Exif
+
