@@ -33,6 +33,8 @@ load_language_en_US () {
 	msg_common_ffmpeg_not_found_text="Software Ffmpeg not found! Please, install it."
 	msg_common_rife_not_found_text="Software RIFE not found! Please, install it."
 	msg_common_dain_not_found_text="Software DAIN not found! Please, install it."
+	msg_common_dain_not_found_text="Software whisperx not found! Please, install it."
+	msg_common_dain_not_found_text="Software openai-whisper not found! Please, install it."
 	msg_common_action_not_found_text="The requested action is not implemented."
 	msg_common_overwrite_text="In case the images to be saved have the same name as those to be processed,${new_line}do you want to overwrite them?"
 	msg_common_abort="Operation interrupted by the user."
@@ -54,16 +56,30 @@ load_language_en_US () {
 	msg_interpolate_title="Interpolating with \"${model}\" by ${multiplicator}"
 	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count (2 by default):"
 	msg_gpu_interpolate_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for interpolation ($def_model by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU, which is slow!${new_line}"
-	msg_interpolate_finish_title="Interpolation of \"${name}\""
+	msg_interpolate_finish_title="Interpolation of \"${name}\" by ${multiplicator}"
 
-	msg_reencode_title="Reencoding to \"${value}\""
+	msg_reencode_h264_title="Reencoding to h264"
+	msg_reencode_h264_finish_title="Reencode \"${name}\" to h264"
+
+	msg_reencode_hevc_title="Reencoding to HEVC"
+	msg_reencode_hevc_finish_title="Reencode \"${name}\" to HEVC"
+
+	msg_reencode_vp9_title="Reencoding to VP9"
+	msg_reencode_vp9_finish_title="Reencode \"${name}\" to VP9"
+
+	msg_reencode_prores_title="Reencoding to ProRes"
+	msg_reencode_prores_finish_title="Reencode \"${name}\" to ProRes"
+	
+	msg_reencode_dnxhd_title="Reencoding to DNxHD"
+	msg_reencode_dnxhd_finish_title="Reencode \"${name}\" to DNxHD"
+
 	msg_dnxhd_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
 	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}${new_line}When in doubt, choose 'Auto'.${new_line}"
 	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Lower equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
 	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${new_line}Slower equals better quality but slower encoding / decoding time.${new_line}"
 	msg_gpu_encode_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
 	msg_multithread_input_text="Do you want to run in multithread ?${new_line}${new_line}This will completly mobilise your CPU, accelerating${new_line}the encoding speed at the cost of your computer's reactivity.${new_line}${new_line}Recommended if you're not going to use it during operation.${new_line}"
-	msg_reencode_finish_title="Reencode \"${name}\""
+	
 	
 	msg_codec_encode_input_text="Enter the desired codec:"
 	msg_profile_encode_input_text="Enter the desired profile:"	
@@ -104,7 +120,6 @@ help () {
 ######################################## Run Convert pro
 
 run_reencode_dnxhd () {
-##&& [ "${ext}" = ".mov" ];
 
 	if [ "${overwrite}" = true ]; then
 		sleep 0.8
@@ -114,14 +129,13 @@ run_reencode_dnxhd () {
 		rm -f "/tmp/${base}_TEMP.mov"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${vprofile}" -pix_fmt "${vpixfmt}" -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${vprofile}" -pix_fmt "${vpixfmt}" -c:a copy "${dir}/${base}${file_converted}.mov" 2>&1)
 	fi
 		
 	return $?
 }
 
 run_reencode_prores () {
-##&& [ "${ext}" = ".mov" ];
 
 	if [ "${overwrite}" = true ]; then
 		sleep 0.8
@@ -131,7 +145,7 @@ run_reencode_prores () {
 		rm -f "/tmp/${base}_TEMP.mov"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}"${opt_profile} -c:a copy "${dir}/${base}_converted.mov" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}"${opt_profile} -c:a copy "${dir}/${base}${file_converted}.mov" 2>&1)
 	fi
 		
 	return $?
@@ -140,7 +154,6 @@ run_reencode_prores () {
 ######################################## Run Convert
 
 run_reencode_h264 () {
-##&& [ "${ext}" = ".mov" ];
 
 	if [ "${overwrite}" = true ];  then		
 		sleep 0.8
@@ -151,14 +164,13 @@ run_reencode_h264 () {
 		rm "/tmp/${base}_TEMP.${ext}"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}_converted.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
 	fi
 		
 	return $?
 }
 
 run_reencode_hevc () {
-##&& [ "${ext}" = ".mov" ];
 
 	if [ "${overwrite}" = true ];  then		
 		sleep 0.8
@@ -169,14 +181,13 @@ run_reencode_hevc () {
 		rm "/tmp/${base}_TEMP.${ext}"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}_converted.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
 	fi
 		
 	return $?
 }
 
 run_reencode_vp9 () {
-##&& [ "${ext}" = ".mov" ];
 
 	if [ "${vcodec}" = "libvpx-vp9" ];  then
 		if [ "${overwrite}" = true ];  then		
@@ -191,7 +202,7 @@ run_reencode_vp9 () {
 		else
 			sleep 0.8
 			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -an -f null /dev/null && \ 2>&1)
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}${file_converted}.webm" 2>&1)
 		fi
 	elif [ "${vcodec}" = "vp9_qsv" ];  then
 		if [ "${overwrite}" = true ];  then		
@@ -204,7 +215,7 @@ run_reencode_vp9 () {
 			rm "/tmp/${base}_TEMP.webm"
 		else
 			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${dir}/${base}_converted.webm" 2>&1)
+			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${dir}/${base}${file_converted}.webm" 2>&1)
 		fi
 	fi
 
@@ -257,7 +268,7 @@ run_interpolate () {
 			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
 			vfps_multiplied=$((${vfps} * ${multiplicator}))
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${vfps_multiplied}" "${dir}/${base}_interpolated.${ext}" 2>&1 )	
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${vfps_multiplied}" "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )	
 		fi
 
 	else
@@ -307,12 +318,9 @@ run_interpolate () {
 
 			"${value}" -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
 			if [ $acodec != "" ]; then
-				printf ${vfps_multiplied}
-				printf ${vcodec}
-				printf ${vfps_multiplied}
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video -c:a copy "${dir}/${base}_interpolated.${ext}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video -c:a copy "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
 			else
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}_interpolated.${ext}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
 			fi
 			rm -r "/tmp/${base}_input_TEMP"
 			rm -r "/tmp/${base}_output_TEMP"
@@ -355,7 +363,7 @@ run_sepia () {
 
 		rm "${dir}/${base}_TEMP.${ext}"
 	else
-		msg=$("${ffmpeg_bin}" -i "${input}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${dir}/${base}_sepia.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -i "${input}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${dir}/${base}${file_sepia}.${ext}" 2>&1)
 	fi
 
 	return $?
@@ -371,7 +379,7 @@ run_gray () {
 
 		rm "${dir}/${base}_TEMP.${ext}"
 	else
-		msg=$("${ffmpeg_bin}" -i "${input}" -vf extractplanes=y -c:a copy "${dir}/${base}_gray.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -i "${input}" -vf extractplanes=y -c:a copy "${dir}/${base}${file_gray}.${ext}" 2>&1)
 	fi
 
 	return $?
@@ -388,7 +396,7 @@ run_overturn () {
 
 		rm "${dir}/${base}_TEMP.${ext}"
 	else
-		msg=$("${ffmpeg_bin}" -i "${input}" -filter:v "${value}" -c:a copy "${dir}/${base}_rotated.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -i "${input}" -filter:v "${value}" -c:a copy "${dir}/${base}${file_rotated}.${ext}" 2>&1)
 	fi
 
 	return $?
@@ -403,7 +411,7 @@ run_rotate () {
 
 		rm "${dir}/${base}_TEMP.${ext}"
 	else
-		msg=$("${ffmpeg_bin}" -display_rotation "${angle}" -i "${input}" -c:a copy "${dir}/${base}_rotated.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -display_rotation "${angle}" -i "${input}" -c:a copy "${dir}/${base}${file_rotated}.${ext}" 2>&1)
 	fi
 
 	return $?
@@ -554,8 +562,8 @@ detect_video_codec () {
 				rm "/tmp/${base}_TEMP.${ext}"
 			
 			else
-				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v prores -c:a copy "${dir}/${base}_converted.${ext}" 2>&1)
-				base="${base}_converted"
+				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v prores -c:a copy "${dir}/${base}${file_converted}.${ext}" 2>&1)
+				base="${base}${file_converted}"
 			fi
 		elif [ $vfallback=$loc_lossy ]; then
 
@@ -576,8 +584,8 @@ detect_video_codec () {
 				< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -c:v "${vcodec}" -c:a copy "${input}" 2>&1)
 				rm "/tmp/${base}_TEMP.${ext}"
 			else
-				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}_converted.${ext}" 2>&1)
-				base="${base}_converted"
+				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -c:a copy "${dir}/${base}${file_converted}.${ext}" 2>&1)
+				base="${base}${file_converted}"
 				
 			fi
 		fi
@@ -625,7 +633,6 @@ detect_audio_codec () {
 		if [ "${afallback}" = "${loc_lossless}" ]; then
 			acodec="pcm"; aext="waw"
 			if [ "${overwrite}" = true ]; then
-				printf "WRITE_LOSSLESS"
 				sleep 0.8
 				cp "${input}" "/tmp/${base}_TEMP.${ext}"
 				rm "${input}"
@@ -635,13 +642,12 @@ detect_audio_codec () {
 				rm "/tmp/${base}_TEMP.${ext}"
 			
 			else
-				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a pcm_s16le "${dir}/${base}_converted.${ext}" 2>&1)
-				base="${base}_converted"
+				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a pcm_s16le "${dir}/${base}${file_converted}.${ext}" 2>&1)
+				base="${base}${file_converted}"
 			fi
 		elif [ "${afallback}" = "${loc_lossy}" ]; then
 			acodec="opus"; aext="ogg"
 			if [ "${overwrite}" = true ]; then
-				printf "WRITE_LOSSLESS OVER"
 				sleep 2
 				cp "${input}" "/tmp/${base}_TEMP.${ext}"
 				rm "${input}"
@@ -650,10 +656,9 @@ detect_audio_codec () {
 				< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -c:v copy -c:a libopus "${input}" 2>&1)
 				rm "/tmp/${base}_TEMP.${ext}"
 			else
-				printf "WRITE_LOSSLESS NO OVER"
 				sleep 2
-				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a libopus "${dir}/${base}_converted.${ext}" 2>&1)
-				base="${name%.*}_converted"
+				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a libopus "${dir}/${base}${file_converted}.${ext}" 2>&1)
+				base="${name%.*}${file_converted}"
 			fi
 		fi
 
@@ -1197,6 +1202,12 @@ rife_bin=$(which /usr/share/rife-ncnn-vulkan/rife-ncnn-vulkan)
 
 dain_bin=$(which /usr/share/dain-ncnn-vulkan/dain-ncnn-vulkan)
 [ ! -z "${dain_bin}" ] && dain_list="DAIN"
+
+whisperx_bin=$(which $HOME/.local/share/pipx/venvs/whisperx)
+[ ! -z "${whisperx_bin}" ] && whisperx_list="whisperx"
+
+openai_whisper_bin=$(which $HOME/.local/share/pipx/venvs/openai-whisper)
+[ ! -z "${openai_whisper_bin}" ] && openai_whisper_list="whisper"
 	
 
 action="${1}"
