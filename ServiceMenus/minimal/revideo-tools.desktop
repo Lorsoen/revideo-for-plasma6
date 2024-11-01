@@ -1,0 +1,99 @@
+#
+# 	Part of kde-service-menu-revideo Version 0.1.2
+# 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
+# 	Copyright (C) 2024 <fashim99.(at)gmail.com>
+#
+# 	This program is free software: you can redistribute it and/or modify
+# 	it under the terms of the GNU General Public License as published by
+# 	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#
+# 	This program is distributed in the hope that it will be useful,
+# 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+# 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# 	GNU General Public License for more details.
+#
+# 	You should have received a copy of the GNU General Public License
+# 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+[Desktop Entry]
+Actions=disassemble_jpg;disassemble_png;dissasemble_tracks;_SEPARATOR_;inter;restore;deinterlace;_SEPARATOR_;add_music;add_watermark;_SEPARATOR_;sepia;gray
+MimeType=video/*
+X-KDE-Priority=TopLevel
+Name=ReVideo tools service menu
+ServiceTypes=KonqPopupMenu/Plugin,video/*
+TryExec=revideo-kdialog
+Type=Service
+X-KDE-Submenu=Tools
+X-KDE-Submenu[fr]=Outils
+Terminal=true
+TerminalOptions=\s--noclose
+
+################################################################################
+
+[Desktop Action disassemble_jpg]
+Exec=revideo-kdialog horizontal_disassemble jpg %F
+Icon=builder-split-tab-left-symbolic
+Name=Generate JPGs
+Name[fr]=Générer des JPGs
+
+[Desktop Action disassemble_png]
+Exec=revideo-kdialog horizontal_disassemble png %F
+Icon=builder-split-tab-left-symbolic
+Name=Generate PNGs
+Name[fr]=Générer des PNGs
+
+[Desktop Action dissasemble_tracks]
+Exec=revideo-kdialog vertical_disassemble %F
+Icon=builder-split-tab-symbolic
+Name=Dissasemble
+Name[fr]=Désassembler
+
+################################################################################
+
+[Desktop Action inter]
+Exec=revideo-kdialog interpolate minterpolate %F
+Icon=interpolate
+Name=Interpolate
+Name[fr]=Interpoler
+
+[Desktop Action restore]
+Exec=revideo-kdialog restore %F
+Icon=image-denoise-symbolic
+Name=Restore
+Name[fr]=Restaurer
+
+[Desktop Action deinterlace]
+Exec=revideo-kdialog deinterlace %F
+Icon=entries-unlinked-symbolic
+Name=De-Interlace
+Name[fr]=Désentrelacer
+
+################################################################################
+
+[Desktop Action add_music]
+Exec=revideo-kdialog add_music %F
+Icon=music-artist-symbolic
+Name=Add Music
+Name[fr]=Ajouter une musique
+
+[Desktop Action add_watermark]
+Exec=revideo-kdialog add_watermark %F
+Icon=tool_pen
+Name=Add Watermark
+Name[fr]=Ajouter un watermark
+
+################################################################################
+
+[Desktop Action sepia]
+Exec=revideo-kdialog sepia %F
+Icon=color-management
+Name=Sepia Tone
+Name[fr]=Filtre sépia
+
+[Desktop Action gray]
+Exec=revideo-kdialog gray %F
+Icon=image-grayscale-symbolic
+Name=Grayscale
+Name[fr]=Nuances de gris

@@ -28,17 +28,36 @@ required_vars=("bin_dir" "servicemenu_dir" "doc_dir")
 
 # determine installation directories
 if [[ ${EUID} -eq 0 ]]; then
-    bin_dir="$(${qtpaths_bin} --install-prefix)/bin"
-    servicemenu_dir="$(${qtpaths_bin} --locate-dirs GenericDataLocation kio/servicemenus | sed 's/.*://')"
-    doc_dir="$(${qtpaths_bin} --install-prefix)/share/doc/kde-service-menu-revideo/"
-    model_dir="$(${qtpaths_bin} --install-prefix)/usr/share"
-    install_mode="system"
+    printf "Sudo install for revideo is not recommended if you want the full package! \n"
+    printf "It will only install the minimal version. \n\n"
+    printf "Are you sure you want to proceed ? \n\n"
+    are_you_sure_list=("Yes, proceed anyway!" "No, abort mission!")
+    select inst in "${are_you_sure_list[@]}"; do
+        case $inst in
+            ("Yes, proceed anyway!")
+                bin_dir="$(${qtpaths_bin} --install-prefix)/bin"
+                servicemenu_dir="$(${qtpaths_bin} --locate-dirs GenericDataLocation kio/servicemenus | sed 's/.*://')"
+                doc_dir="$(${qtpaths_bin} --install-prefix)/share/doc/kde-service-menu-revideo/"
+                install_mode="system"
+                install_list=("Get this AI garbage off my lawn!!!" "I'll have some of it..." "Everything you have!")
+                #fav="Get this AI garbage off my lawn!!!"
+                break
+                ;;
+            ("No, abort mission!")
+                echo "Exiting install..."
+                exit 1
+                ;;
+            (*) echo "Exiting install..."
+                exit 1
+        esac
+    done
+    
 else
     bin_dir="${user_install_prefix}/bin"
     servicemenu_dir="$(${qtpaths_bin} --locate-dirs GenericDataLocation kio/servicemenus | sed 's/:.*//')"
     doc_dir="${user_install_prefix}/share/doc/kde-service-menu-revideo/"
-    model_dir="$(${qtpaths_bin} --install-prefix)/usr/share"
     install_mode="local"
+    install_list=("Get this AI garbage off my lawn!!!" "I'll have some of it..." "Everything you have!")
 fi
 
 # ensure all required variables are set
@@ -49,88 +68,99 @@ for var in "${required_vars[@]}"; do
     fi
 done
 
-echo "Installing kde-service-menu-revideo (${install_mode}) ..."
+if [[ ${EUID} -eq 0 ]]; then
+    echo "Installing kde-service-menu-revideo (${install_mode}) ..."
 
-# install required binaries
-install -d "${bin_dir}" && \
-install -m 755 -p bin/* "${bin_dir}" && \
+    printf "revideo comes with extra AI tools that requires extra installation. \n\n"
+    printf "Which install do you want to do ? \n"  
 
-# install documentation files
-install -d "${doc_dir}" && \
-install -m 644 -p doc/* "${doc_dir}"
-# install extra dependencies
-
-    printf "revideo comes with extra AI tools that requires extra installation.
-    "
-    printf "Which install do you want to do ?
-    
-    "
-    install_type=' '
-    install_list=("\"Get this AI garbage off my lawn!!!\"" "\"I'll have some of it...\"" "\"Everything you have!\"")
     select fav in "${install_list[@]}"; do
-        case $fav in
-            ("\"Get this AI garbage off my lawn!!!\"")
-                echo "OK. Beginning minimal install:"
-                sleep 0.8
-                install -d "${servicemenu_dir}" && \
-                install -m 755 -p ServiceMenus/minimal/*.desktop "${servicemenu_dir}" && \
-                
-                break
-                ;;
-            ("\"I'll have some of it...\"")
-                echo "OK. Beginning normal install:"
-                sleep 0.8
-                install -d "${servicemenu_dir}" && \
-                install -m 755 -p ServiceMenus/normal/*.desktop "${servicemenu_dir}" && \
-                
-                # Video Restoration
-                pipx install waifu2x-ncnn-vulkan-python
-
-                # Video Upscale
-                pipx install waifu2x-ncnn-vulkan-python
-
-                # Interpolation
-                pipx install rife-ncnn-vulkan-python
-
-                # Audio separation
-                pipx install openunmix
-    
-                # Transcript
-                pipx install whisperx
-                
-                break
-                ;;
-            ("\"Everything you have!\"")
-                echo "OK. Beginning everything install:"
-                sleep 0.8
-                install -d "${servicemenu_dir}" && \
-                install -m 755 -p ServiceMenus/everything/*.desktop "${servicemenu_dir}" && \
-                
-                # Video Restoration
-                pipx install waifu2x-ncnn-vulkan-python
-
-                # Video Upscale
-                pipx install srmd-ncnn-vulkan-python
-                pipx install waifu2x-ncnn-vulkan-python
-
-                # Interpolation
-                wget https://github.com/nihui/rife-ncnn-vulkan/releases/download/20221029/rife-ncnn-vulkan-20221029-ubuntu.zip
-                wget https://github.com/nihui/dain-ncnn-vulkan/releases/download/20220728/dain-ncnn-vulkan-20220728-ubuntu.zip
-
-                # Audio separation
-                pipx install openunmix
-    
-                # Transcript
-                pipx install openai-whisper
-                pipx install whisperx
-                
-                break
-                ;;
-            (*) echo "Invalid option $REPLY";;
-        esac
+        break
     done
+fi
 
-if [[ $CHECK1 = "" ]]; then
+case $fav in
+    ("Get this AI garbage off my lawn!!!")
+        echo "OK. Beginning minimal install:"
+
+        # install required binaries
+        install -d "${bin_dir}" && \
+        install -m 755 -p bin/* "${bin_dir}" && \
+        # install documentation files
+        install -d "${doc_dir}" && \
+        install -m 644 -p doc/* "${doc_dir}"
+        # install service menus
+        install -d "${servicemenu_dir}" && \
+        install -m 755 -p ServiceMenus/minimal/*.desktop "${servicemenu_dir}" && \
+        sleep 0.01
+        ;;
+
+    ("I'll have some of it...")
+        echo "OK. Beginning normal install:"
+
+        # install required binaries
+        install -d "${bin_dir}" && \
+        install -m 755 -p bin/* "${bin_dir}" && \
+        # install documentation files
+        install -d "${doc_dir}" && \
+        install -m 644 -p doc/* "${doc_dir}"
+        # install service menus
+        install -d "${servicemenu_dir}" && \
+        install -m 755 -p ServiceMenus/normal/*.desktop "${servicemenu_dir}" && \
+        # install extra dependencies
+        
+        # Package managers
+        sudo pacman -S --noconfirm --quiet yay
+        sudo pacman -S --noconfirm --quiet python-pipx
+        # Video Restoration
+        yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
+        # Video Upscale
+        yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
+        # Interpolation
+        yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
+        # Audio separation
+        pipx install openunmix
+        # Transcript
+        pipx install whisperx
+        ;;      
+
+    ("Everything you have!")
+        echo "OK. Beginning everything install:"
+        
+        # install required binaries
+        install -d "${bin_dir}" && \
+        install -m 755 -p bin/* "${bin_dir}" && \
+        # install documentation files
+        install -d "${doc_dir}" && \
+        install -m 644 -p doc/* "${doc_dir}"
+        # install service menus
+        install -d "${servicemenu_dir}" && \
+        install -m 755 -p ServiceMenus/everything/*.desktop "${servicemenu_dir}" && \
+        # install extra dependencies
+
+        # Package managers
+        #sudo pacman -S --noconfirm --quiet yay
+        #sudo pacman -S --noconfirm --quiet python-pipx
+        ## Video Restoration
+        #yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
+        ## Video Upscale
+        #yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
+        #yay -S --noconfirm --quiet realsr-ncnn-vulkan-python
+        ## Interpolation
+        #yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
+        #yay -S --noconfirm --quiet dain-ncnn-vulkan-bin
+        ## Audio separation
+        #pipx install openunmix
+        ## Transcript
+        #pipx install openai-whisper
+        pipx install whisperx
+        ;;    
+
+    (*) 
+        echo "Exiting install..."
+        exit 1;;
+
+esac
 
 # report installation result
 if [ ${?} -eq 0 ]; then
