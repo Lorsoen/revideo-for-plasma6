@@ -1,5 +1,5 @@
 #
-# 	Part of kde-service-menu-revideo Version 0.1.2
+# 	Part of kde-service-menu-revideo Version 0.2.0
 # 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
 # 	Copyright (C) 2024 <fashim99.(at)gmail.com>
 #
@@ -18,7 +18,7 @@
 #
 
 [Desktop Entry]
-Actions=disassemble_jpg;disassemble_png;dissasemble_tracks;_SEPARATOR_;transcript;inter;restore;deinterlace;audio_split;_SEPARATOR_;add_music;add_watermark;_SEPARATOR_;sepia;gray
+Actions=disassemble_jpg;disassemble_png;_SEPARATOR_;inter;_SEPARATOR_;sepia;gray
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo tools service menu
@@ -27,8 +27,6 @@ TryExec=revideo-kdialog
 Type=Service
 X-KDE-Submenu=Tools
 X-KDE-Submenu[fr]=Outils
-Terminal=true
-TerminalOptions=\s--noclose
 
 ################################################################################
 

@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# 	Part of kde-service-menu-revideo Version 0.1.2
+# 	Part of kde-service-menu-revideo Version 0.2.0
 # 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
 # 	Copyright (C) 2024 <fashim99.(at)gmail.com>
 #
