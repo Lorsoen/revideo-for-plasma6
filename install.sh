@@ -40,7 +40,7 @@ if [[ ${EUID} -eq 0 ]]; then
                 doc_dir="$(${qtpaths_bin} --install-prefix)/share/doc/kde-service-menu-revideo/"
                 install_mode="system"
                 install_list=("Get this AI garbage off my lawn!!!" "I'll have some of it..." "Everything you have!")
-                #fav="Get this AI garbage off my lawn!!!"
+                fav="Get this AI garbage off my lawn!!!"
                 break
                 ;;
             ("No, abort mission!")
@@ -68,7 +68,7 @@ for var in "${required_vars[@]}"; do
     fi
 done
 
-if [[ ${EUID} -ne 0 ]]; then
+if [[ ${EUID} -eq 0 ]]; then
     echo "Installing kde-service-menu-revideo (${install_mode}) ..."
 
     printf "revideo comes with extra AI tools that requires extra installation. \n\n"
