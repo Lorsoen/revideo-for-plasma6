@@ -279,8 +279,8 @@ run_interpolate () {
 			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
 			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
 
-			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
 			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
+			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
 
 			mkdir "/tmp/${base}_input_TEMP"
 			mkdir "/tmp/${base}_output_TEMP"
@@ -292,9 +292,9 @@ run_interpolate () {
 			rm "${input}"
 			"${value}" -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
 			if [ $acodec != "" ]; then
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_%08d.${aext}" -c:a copy $opt_video "${input}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_%08d.${aext}"$opt_video$opt_audio "${dir}/${base}.${vext}" 2>&1 )
 			else
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" $opt_video "${input}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" $opt_video "${dir}/${base}.${vext}" 2>&1 )
 			fi
 			rm "/tmp/${base}_TEMP.${ext}"
 			
@@ -307,8 +307,8 @@ run_interpolate () {
 			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: )
 			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: )
 
-			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
 			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
+			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
 
 			mkdir "/tmp/${base}_input_TEMP"
 			mkdir "/tmp/${base}_output_TEMP"
@@ -318,9 +318,9 @@ run_interpolate () {
 
 			"${value}" -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
 			if [ $acodec != "" ]; then
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video -c:a copy "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video$opt_audio "${dir}/${base}${file_interpolated}.${vext}" 2>&1 )
 			else
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${vext}" 2>&1 )
 			fi
 			rm -r "/tmp/${base}_input_TEMP"
 			rm -r "/tmp/${base}_output_TEMP"
@@ -470,41 +470,47 @@ detect_video_codec () {
 
 	## Prores
 	if [[ ${detect_vcodec} = *"prores"* ]]; then
-	vcodec="prores"
-	opt_video=" -c:v $vcodec"
+	vcodec="prores"; vext="mov"; acodec="copy"; vpixfmt="yuv422p10"
+	opt_audio=" -c:a $acodec"; opt_video=" -c:v $vcodec"
 		if [[ ${detect_vcodec} = *"(Proxy)"* ]]; then
-		vprofile=0
-		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		vprofile="0"; acodec="copy"
+		opt_video=" -c:v $vcodec -profile:v $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(LT)"* ]]; then
-		vprofile=1
-		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		vprofile="1"; acodec="copy"
+		opt_video=" -c:v $vcodec -profile:v $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(Standard)"* ]]; then
-		vprofile=2
-		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		vprofile="2"; acodec="copy"
+		opt_video=" -c:v $vcodec -profile:v $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(HQ)"* ]]; then
-		vprofile=3
-		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		vprofile="3"; acodec="copy"
+		opt_video=" -c:v $vcodec -profile:v $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(4444)"* ]]; then
-		vprofile=4
-		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		vprofile="4"; acodec="copy"
+		opt_video=" -c:v $vcodec -profile:v $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(XQ)"* ]]; then
-		vprofile=5
-		opt_video=" -c:v $vcodec -profile:v $vprofile"
+		vprofile="5"; acodec="copy"
+		opt_video=" -c:v $vcodec -profile:v $vprofile -pix_fmt $vpixfmt"
 		fi
 
 	## DNXHD
 	elif [[ ${detect_vcodec} = *"dnxhd"* ]]; then
-	opt_video=" -c:v $vcodec -profile:v $vprofile"
+	vext="mov"; vcodec="dnxhd"; acodec="copy"
+	opt_audio=" -c:a $acodec"
 		if [[ ${detect_vcodec} = *"(DNXHR LB)"* ]]; then
-		vcodec="dnxhr_lb"
+		vprofile="dnxhr_lb"; vpixfmt="yuv422p"
+		opt_video=" -c:v $vcodec -profile $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(DNXHR SQ)"* ]]; then
-		vcodec="dnxhr_sq"
+		vprofile="dnxhr_sq"; vpixfmt="yuv422p"
+		opt_video=" -c:v $vcodec -profile $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(DNXHR HQ)"* ]]; then
-		vcodec="dnxhr_hq"
+		vprofile="dnxhr_hq"; vpixfmt="yuv422p"
+		opt_video=" -c:v $vcodec -profile $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(DNXHR HQX)"* ]]; then
-		vcodec="dnxhr_hqx"
+		vprofile="dnxhr_hqx"; vpixfmt="yuv422p10le"
+		opt_video=" -c:v $vcodec -profile $vprofile -pix_fmt $vpixfmt"
 		elif [[ ${detect_vcodec} = *"(DNXHR 444)"* ]]; then
-		vcodec="dnxhr_444"
+		vprofile="dnxhr_444"; vpixfmt="yuv422p10le"
+		opt_video=" -c:v $vcodec -profile $vprofile -pix_fmt $vpixfmt"
 		fi
 
 	## H264
