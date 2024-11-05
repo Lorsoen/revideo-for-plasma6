@@ -276,8 +276,8 @@ run_interpolate () {
 		if [ "${overwrite}" = true ];  then
 			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
 			vfps_multiplied=$((${vfps} * ${multiplicator}))
-			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
-			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Stream )
+			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: )
+			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: )
 
 			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
 			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
