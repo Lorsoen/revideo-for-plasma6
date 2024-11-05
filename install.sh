@@ -68,7 +68,7 @@ for var in "${required_vars[@]}"; do
     fi
 done
 
-if [[ ${EUID} -eq 0 ]]; then
+if [[ ${EUID} -ne 0 ]]; then
     echo "Installing kde-service-menu-revideo (${install_mode}) ..."
 
     printf "revideo comes with extra AI tools that requires extra installation. \n\n"
