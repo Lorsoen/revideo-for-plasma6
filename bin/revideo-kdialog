@@ -614,6 +614,10 @@ detect_audio_codec () {
 	elif [[ ${detect_acodec} = *"aac"* ]]; then
 	acodec="aac"; aext="m4a"
 
+	## Vorbis
+	elif [[ ${detect_acodec} = *"vorbis"* ]]; then
+	acodec="libvorbis"; aext="ogg"
+
 	## Opus
 	elif [[ ${detect_acodec} = *"opus"* ]]; then
 	acodec="opus"; aext="ogg"
