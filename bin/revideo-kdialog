@@ -318,9 +318,9 @@ run_interpolate () {
 
 			"${value}" -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
 			if [ $acodec != "" ]; then
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video$opt_audio "${dir}/${base}${file_interpolated}.${vext}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video$opt_audio "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
 			else
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${vext}" 2>&1 )
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
 			fi
 			rm -r "/tmp/${base}_input_TEMP"
 			rm -r "/tmp/${base}_output_TEMP"
@@ -494,7 +494,7 @@ detect_video_codec () {
 
 	## DNXHD
 	elif [[ ${detect_vcodec} = *"dnxhd"* ]]; then
-	vext="mov"; vcodec="dnxhd"; acodec="copy"
+	vcodec="dnxhd"; vext="mov"; acodec="copy"
 	opt_audio=" -c:a $acodec"
 		if [[ ${detect_vcodec} = *"(DNXHR LB)"* ]]; then
 		vprofile="dnxhr_lb"; vpixfmt="yuv422p"
@@ -515,7 +515,7 @@ detect_video_codec () {
 
 	## H264
 	elif [[ ${detect_vcodec} = *"h264"* ]]; then
-	vcodec="libx264"; vbitrate=20; vquality=medium
+	vcodec="libx264";  vext="${ext}"; vbitrate=20; vquality=medium
 	opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality -pix_fmt yuv420p"
 		
 		#if [[ ${detect_vcodec} = *"h264"* ]] && [ def_encoder="Nvidia" ]; then
@@ -529,7 +529,7 @@ detect_video_codec () {
 
 	## NVENC
 	elif [[ ${detect_vcodec} = *"nvenc"* ]]; then
-	vcodec="libx265"; vbitrate=23; vquality=medium
+	vcodec="libx265"; vext="${ext}" vbitrate=23; vquality=medium
 	opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
 		
 		#if [[ ${detect_vcodec} = *"nvenc"* ]] && [ def_encoder="Nvidia" ]; then
@@ -539,7 +539,7 @@ detect_video_codec () {
 
 	## VP9
 	elif [[ ${detect_vcodec} = *"vp9"* ]]; then
-	vcodec="libvpx_vp9"; vbitrate=27; vquality=good
+	vcodec="libvpx-vp9"; vext="${ext}" vbitrate=27; vquality=good
 	opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
 		
 		#if [[ ${detect_vcodec} = *"vp9"* ]] && [ def_encoder="Intel" ]; then

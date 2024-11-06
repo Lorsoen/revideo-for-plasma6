@@ -68,7 +68,7 @@ for var in "${required_vars[@]}"; do
     fi
 done
 
-if [[ ${EUID} -ne 0 ]]; then
+if [[ ${EUID} -eq 0 ]]; then
     echo "Installing kde-service-menu-revideo (${install_mode}) ..."
 
     printf "revideo comes with extra AI tools that requires extra installation. \n\n"
@@ -138,22 +138,22 @@ case $fav in
         install -m 755 -p ServiceMenus/everything/*.desktop "${servicemenu_dir}" && \
         # install extra dependencies
 
-        # Package managers
-        sudo pacman -S --noconfirm --quiet yay
-        sudo pacman -S --noconfirm --quiet python-pipx
-        ## Video Restoration
-        #yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
-        ## Video Upscale
-        #yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
-        #yay -S --noconfirm --quiet realsr-ncnn-vulkan-python
-        ## Interpolation
-        yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
-        yay -S --noconfirm --quiet dain-ncnn-vulkan-bin
-        ## Audio separation
-        #pipx install openunmix
-        ## Transcript
-        #pipx install openai-whisper
-        #pipx install whisperx
+        ## Package managers
+        #sudo pacman -S --noconfirm --quiet yay
+        #sudo pacman -S --noconfirm --quiet python-pipx
+        ### Video Restoration
+        ##yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
+        ### Video Upscale
+        ##yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
+        ##yay -S --noconfirm --quiet realsr-ncnn-vulkan-python
+        ### Interpolation
+        #yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
+        #yay -S --noconfirm --quiet dain-ncnn-vulkan-bin
+        ### Audio separation
+        ##pipx install openunmix
+        ### Transcript
+        ##pipx install openai-whisper
+        pipx install whisperx
         ;;    
 
     (*) 
