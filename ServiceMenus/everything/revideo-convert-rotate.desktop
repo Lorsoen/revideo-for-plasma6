@@ -27,8 +27,6 @@ TryExec=revideo-kdialog
 Type=Service
 X-KDE-Submenu=Reencode / Rotation
 X-KDE-Submenu[fr]=Réencodage / Rotation
-Terminal=true
-TerminalOptions=\s--noclose
 
 ################################################################################
 

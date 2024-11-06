@@ -1,0 +1,28 @@
+Either install bins from AUR / Git repos or install from pipx. No less, no more.
+
+AI MODELS:
+
+Audio Separation:
+Open Unmix
+
+SUbtitle / transscript:
+Openai Whisper
+WhisperX
+
+Image / Video restore:
+Real-ESRGAN
+Waifu2x
+
+Image / Video Upscale:
+SRMD
+RealSR
+Waifu2x
+
+Video Interpolation:
+RIFE
+
+TODO:
+Trouver une idée pour récupérer une extension pour l'audio.
+
+Bonne nouvelle: Le codec vidéo affiché lors d'un "ffprobe" est assez détaillé.
+Préparer une fonction pour préserver le codec vidéo ("vcodec" et "profile")
