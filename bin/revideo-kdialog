@@ -54,9 +54,15 @@ load_language_en_US () {
 	msg_rotate_finish_title="Rotation \"${name}\""
 	
 	msg_interpolate_title="Interpolating with \"${model}\" by ${multiplicator}"
-	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count (2 by default):"
-	msg_gpu_interpolate_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for interpolation ($def_model by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU, which is slow!${new_line}"
+	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count ('${def_multi}' by default):"
+	msg_gpu_interpolate_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for interpolation ('${def_model}' by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU but may be more accurate.${new_line}"
 	msg_interpolate_finish_title="Interpolation of \"${name}\" by ${multiplicator}"
+
+	msg_restore_title="Restoring with \"${model}\" by doing ${restore_act}"
+	msg_restore_act_input_text="What do you want to do?${new_line}('${def_act}' by default)"
+	msg_gpu_restore_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for restoring ('${def_model}' by default).${new_line}${new_line}Options other than 'realesrgan' runs exclusively on CPU but may be more accurate.${new_line}"
+	msg_restore_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s resolution ('${def_multi}' by default):"
+	msg_restore_finish_title="Restoring with \"${model}\" by doing ${restore_act}"
 
 	msg_reencode_h264_title="Reencoding to h264"
 	msg_reencode_h264_finish_title="Reencode \"${name}\" to h264"
@@ -97,6 +103,9 @@ load_language_en_US () {
 	file_interpolated="_interpolated"; file_denoised="_denoised"; file_repaired="_repaired"
 	file_sepia="_sepia"; file_gray="_gray"
 	file_deinterlaced="_deinterlaced"
+
+	list_restore_denoise="Denoize"; list_restore_repair="Repair"; list_restore_upscale="Upscale"
+	nlmeans_list="Nlmeans\ (Slower,\ more\ precise)" atadenoiser_list="Atadenoiser\ (Faster,\ less\ precise)"
 
 	list_pcm_s16be="PCM 16 Bits"; list_pcm_s24be="PCM 24 Bits"; list_pcm_f32be="PCM Floating 32 Bits"
 }
@@ -457,6 +466,20 @@ detect_gpu_h264_hevc () {
 }
 
 detect_gpu_interpolate () {
+	gpu_choice=$(lspci | grep -i '.* vga .*')
+
+	if [[ "{$gpu_choice}" == *'GeForce'* ]]; then
+		gpu_list="${gpu_list}Nvidia "
+		def_encoder="Nvidia"
+	fi
+	if [[ "{$gpu_choice}" == *'Radeon'* ]]; then
+		gpu_list="${gpu_list}AMD "
+		def_encoder="AMD"
+	fi
+	gpu_list="${gpu_list}CPU"
+}
+
+detect_gpu_restore () {
 	gpu_choice=$(lspci | grep -i '.* vga .*')
 
 	if [[ "{$gpu_choice}" == *'GeForce'* ]]; then
@@ -1153,6 +1176,96 @@ set_interpolate () {
 	manage_input_separately "${@}"
 }
 
+set_restore () {
+	value="${1}"
+	shift
+	############### Default values depending of the protocol
+	
+	def_action=${list_restore_denoise}
+	action_list=("$list_restore_denoise $list_restore_repair $list_restore_upscale")
+
+	load_language
+
+	action=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_act_input_text}" ${action_list} ) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${action}" = "" ]; then action="${def_action}" 
+	
+		if [ "${action}" = "${list_restore_denoise}" ]; then
+			
+			def_model=${realesrgan_list}
+			model_list=("$srmd_list $realesrgan_list $nlmeans_list $atadenoiser_list")
+
+			detect_gpu_restore
+
+			load_language
+
+			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_interpolate_input_text}" $model_list) || \
+				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+			if [ "${model}" = "" ]; then model="${def_model}" 
+			fi
+
+			if [ "${model}" = "${srmd_list}" ]; then
+				value="${srmd_bin}"
+			elif [ "${model}" = "${realesrgan_list}" ]; then
+				value="${realesrgan_bin}"
+			elif [ "${model}" = "${nlmeans_list}" ]; then
+				value="nlmeans"
+			elif [ "${model}" = "${atadenoiser_list}" ]; then
+				value="atadenoiser"
+			fi
+		fi
+		
+		
+		elif [ "${action}" = "${list_restore_repair}" ]; then
+
+		
+
+
+		elif [ "${action}" = "${list_restore_upscale}" ]; then
+			
+			def_multi=2
+			value="${realsr_bin}"
+	
+			multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+			if [ "${multiplicator}" = "" ]; then multiplicator="${def_multi}" 
+			fi
+
+		fi
+	
+	fi
+	
+	
+	
+	def_multi=2
+
+	multiplicator_list=("2 4 6 8")
+
+	if [ "${gpu_list}" != "CPU" ] && [ ! -z "${rife_bin}" ]; then
+		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_interpolate_input_text}" $model_list) || \
+			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${model}" = "" ]; then model="${def_model}" 
+		fi
+
+		if [ "${model}" = "RIFE" ]; then
+			value="${rife_bin}"
+		elif [ "${model}" = "DAIN" ]; then
+			value="${dain_bin}"
+		elif [ "${model}" = "Minterpolate" ]; then
+			value="minterpolate"
+		fi
+	fi
+
+	multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+	if [ "${multiplicator}" = "" ]; then multiplicator="${def_multi}" 
+	fi
+
+	ask_overwrite=true
+
+	manage_input_separately "${@}"
+}
+
 set_transcript () {
 	value="${1}"
 	shift
@@ -1264,11 +1377,20 @@ rife_bin=$(which /usr/share/rife-ncnn-vulkan/rife-ncnn-vulkan)
 dain_bin=$(which /usr/share/dain-ncnn-vulkan/dain-ncnn-vulkan)
 [ ! -z "${dain_bin}" ] && dain_list="DAIN"
 
-whisperx_bin=$(which $HOME/.local/share/pipx/venvs/whisperx)
-[ ! -z "${whisperx_bin}" ] && whisperx_list="whisperx"
+realesrgan_bin=$(which /usr/share/rife-ncnn-vulkan/realesrgan-ncnn-vulkan)
+[ ! -z "${realesrgan_bin}" ] && realesrgan_list="Realesrgan"
 
-openai_whisper_bin=$(which $HOME/.local/share/pipx/venvs/openai-whisper)
-[ ! -z "${openai_whisper_bin}" ] && openai_whisper_list="whisper"
+srmd_bin=$(which /usr/share/rife-ncnn-vulkan/srmd-ncnn-vulkan)
+[ ! -z "${srmd_bin}" ] && srmd_list="SRMD"
+
+realsr_bin=$(which /usr/share/rife-ncnn-vulkan/realsr-ncnn-vulkan)
+[ ! -z "${realsr_bin}" ]
+
+#whisperx_bin=$(which $HOME/.local/share/pipx/venvs/whisperx)
+#[ ! -z "${whisperx_bin}" ] && whisperx_list="whisperx"
+#
+#openai_whisper_bin=$(which $HOME/.local/share/pipx/venvs/openai-whisper)
+#[ ! -z "${openai_whisper_bin}" ] && openai_whisper_list="whisper"
 	
 
 action="${1}"

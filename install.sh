@@ -113,9 +113,9 @@ case $fav in
         sudo pacman -S --noconfirm --quiet yay
         sudo pacman -S --noconfirm --quiet python-pipx
         # Video Restoration
-        #yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
+        yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
         # Video Upscale
-        #yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
+        yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
         # Interpolation
         yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
         # Audio separation
