@@ -59,13 +59,13 @@ Name=Transcript
 Name[fr]=Transcripter
 
 [Desktop Action inter]
-Exec=revideo-kdialog interpolate %F
+Exec=revideo-kdialog interpolate minterpolate %F
 Icon=interpolate
 Name=Interpolate
 Name[fr]=Interpoler
 
 [Desktop Action restore]
-Exec=revideo-kdialog restore %F
+Exec=revideo-kdialog restore nlmeans %F
 Icon=image-denoise-symbolic
 Name=Restore
 Name[fr]=Restaurer

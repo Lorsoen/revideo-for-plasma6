@@ -53,16 +53,16 @@ load_language_en_US () {
 	msg_rotate_angle_input_text="Enter the desired rotation angle:"
 	msg_rotate_finish_title="Rotation \"${name}\""
 	
-	msg_interpolate_title="Interpolating with \"${model}\" by ${multiplicator}"
+	msg_interpolate_title="Interpolating with \"${model}\" by \"${multiplicator}\""
 	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count ('${def_multi}' by default):"
 	msg_gpu_interpolate_input_text="${att_gpu_available}Choose a model for interpolation ('${def_model}' by default).${new_line}$att_gpu_available_interpolate"
-	msg_interpolate_finish_title="Interpolation of \"${name}\" by ${multiplicator}"
+	msg_interpolate_finish_title="Interpolation of \"${name}\" by \"${multiplicator}\""
 
-	msg_restore_title="Restoring with \"${model}\" by doing ${restore_act}"
-	msg_restore_act_input_text="${att_gpu_available}What do you want to do? ('${def_action}' by default)"
+	msg_restore_title="Restoring by doing \"${subaction}\" with \"${model}\""
+	msg_subaction_input_text="${att_gpu_available}What do you want to do? ('${def_subaction}' by default)"
 	msg_gpu_restore_input_text="Choose a model for restoring ('${def_model}' by default).${new_line}${att_gpu_available_restore}"
 	msg_restore_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s resolution ('${def_multi}' by default):"
-	msg_restore_finish_title="Restoring with \"${model}\" by doing ${restore_act}"
+	msg_restore_finish_title="Restauration of \"${name}\" with \"${model}\""
 
 	msg_reencode_h264_title="Reencoding to h264"
 	msg_reencode_h264_finish_title="Reencode \"${name}\" to h264"
@@ -1265,8 +1265,7 @@ set_restore () {
 	shift
 	############### Default values depending of the protocol
 	
-	def_action=${list_restore_denoise}
-	action=${list_restore_denoise}
+	def_subaction=${list_restore_denoise}
 	multiplicator_list=("2 4 6 8")
 
 	detect_gpu_restore
@@ -1274,21 +1273,34 @@ set_restore () {
 	load_language
 
 	if [ "${gpu_list}" != "CPU" ] && [ ! -z "${realesrgan_bin}" ]; then
-		action=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_act_input_text}" "${list_restore_denoise}" "${list_restore_repair}" "${list_restore_upscale}" ) || \
+		subaction=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_subaction_input_text}" "${list_restore_denoise}" "${list_restore_repair}" "${list_restore_upscale}" ) || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		if [ "${action}" = "" ]; then action="${def_action}"
+		if [ "${subaction}" = "" ]; then subaction="${def_subaction}"
 		fi 
 	fi
+
+	subaction=${list_restore_denoise}
 	
-	if [ "${action}" = "${list_restore_denoise}" ]; then
-		
-		def_model=${list_realesrgan}
+	if [ "${subaction}" = "${list_restore_denoise}" ]; then
 
-		load_language
+		if [ "${gpu_list}" != "CPU" ]; then
+			def_model=${list_realesrgan}
 
-		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${list_realesrgan}" "${list_nlmeans}" "${list_atadenoiser}") || \
-			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-		if [ "${model}" = "" ]; then model="${def_model}" 
+			load_language
+
+			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${list_realesrgan}" "${list_nlmeans}" "${list_atadenoiser}") || \
+				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+			if [ "${model}" = "" ]; then model="${def_model}" 
+			fi
+		else
+			def_model=${list_nlmeans}
+
+			load_language
+
+			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${list_nlmeans}" "${list_atadenoiser}") || \
+				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+			if [ "${model}" = "" ]; then model="${def_model}" 
+			fi
 		fi
 
 		if [ "${model}" = "${srmd_list}" ]; then
@@ -1302,11 +1314,11 @@ set_restore () {
 		fi
 	
 	
-	elif [ "${action}" = "${list_restore_repair}" ]; then
+	elif [ "${subaction}" = "${list_restore_repair}" ]; then
 
 		value="${srmd_bin}"
 
-	elif [ "${action}" = "${list_restore_upscale}" ]; then
+	elif [ "${subaction}" = "${list_restore_upscale}" ]; then
 		
 		def_multi=2
 		value="${realsr_bin}"
@@ -1319,8 +1331,6 @@ set_restore () {
 		fi
 
 	fi
-
-	sleep 1
 
 	ask_overwrite=true
 
