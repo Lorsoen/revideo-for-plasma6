@@ -55,12 +55,12 @@ load_language_en_US () {
 	
 	msg_interpolate_title="Interpolating with \"${model}\" by ${multiplicator}"
 	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count ('${def_multi}' by default):"
-	msg_gpu_interpolate_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for interpolation ('${def_model}' by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU but may be more accurate.${new_line}"
+	msg_gpu_interpolate_input_text="${att_gpu_available}Choose a model for interpolation ('${def_model}' by default).${new_line}$att_gpu_available_interpolate"
 	msg_interpolate_finish_title="Interpolation of \"${name}\" by ${multiplicator}"
 
 	msg_restore_title="Restoring with \"${model}\" by doing ${restore_act}"
-	msg_restore_act_input_text="What do you want to do?${new_line}('${def_act}' by default)"
-	msg_gpu_restore_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for restoring ('${def_model}' by default).${new_line}${new_line}Options other than 'realesrgan' runs exclusively on CPU but may be more accurate.${new_line}"
+	msg_restore_act_input_text="${att_gpu_available}What do you want to do? ('${def_action}' by default)"
+	msg_gpu_restore_input_text="Choose a model for restoring ('${def_model}' by default).${new_line}${att_gpu_available_restore}"
 	msg_restore_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s resolution ('${def_multi}' by default):"
 	msg_restore_finish_title="Restoring with \"${model}\" by doing ${restore_act}"
 
@@ -83,7 +83,7 @@ load_language_en_US () {
 	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}${new_line}When in doubt, choose 'Auto'.${new_line}"
 	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Lower equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
 	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${new_line}Slower equals better quality but slower encoding / decoding time.${new_line}"
-	msg_gpu_encode_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
+	msg_gpu_encode_input_text="${att_gpu_available}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
 	msg_multithread_input_text="Do you want to run in multithread ?${new_line}${new_line}This will completly mobilise your CPU, accelerating${new_line}the encoding speed at the cost of your computer's reactivity.${new_line}${new_line}Recommended if you're not going to use it during operation.${new_line}"
 	
 	msg_pcm_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
@@ -96,6 +96,13 @@ load_language_en_US () {
 	msg_afallback_encode_input_text="'${base}.${ext}''s audio codec is not known from revideo.${new_line}It will fallback to either a lossless codec (PCM) or a lossy one (Opus)${new_line}($def_afallback by default)${new_line}${new_line}Choose one:${new_line}"
 	msg_vfallback_encode_input_text="'${base}.${ext}''s video codec is not known from revideo.${new_line}It will fallback to either a lossless codec (ProRes) or a lossy one (h264)${new_line}($def_vfallback by default)${new_line}${new_line}Choose one:${new_line}"
 
+	### Attachments
+	if [ "${gpu_list}" != "CPU" ]; then
+	att_gpu_available="One or multiple compatible GPU(s) were detected.${new_line}"
+	att_gpu_available_interpolate="${new_line}'Minterpolate' runs exclusively on CPU but may be more accurate.${new_line}"
+	att_gpu_available_restore="${new_line}'Realesrgan' benefits from your GPU but may be less accurate.${new_line}"
+	fi
+
 	### Localizables
 	loc_lossless="Lossless"; loc_lossy="Lossy"
 
@@ -105,7 +112,7 @@ load_language_en_US () {
 	file_deinterlaced="_deinterlaced"
 
 	list_restore_denoise="Denoize"; list_restore_repair="Repair"; list_restore_upscale="Upscale"
-	nlmeans_list="Nlmeans\ (Slower,\ more\ precise)" atadenoiser_list="Atadenoiser\ (Faster,\ less\ precise)"
+	list_nlmeans="Nlmeans (Slower, more precise)" list_atadenoiser="Atadenoiser (Faster, less precise)"
 
 	list_pcm_s16be="PCM 16 Bits"; list_pcm_s24be="PCM 24 Bits"; list_pcm_f32be="PCM Floating 32 Bits"
 }
@@ -360,12 +367,89 @@ run_interpolate () {
 	return $?
 }
 
-#run_transcript () {
-#
-#
-#}
+run_restore () {
+	
+	base="${base}"
 
-######################################## Run adders / subtractors
+	if [ "${value}" = "minterpolate" ]; then
+	
+		if [ "${overwrite}" = true ];  then
+			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			vfps_multiplied=$((${vfps} * ${multiplicator}))
+
+			cp "${input}" "/tmp/${base}_TEMP.${ext}"
+			rm "${input}"
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -filter:v minterpolate -r "${vfps_multiplied}" "${input}" 2>&1 )
+
+			rm "/tmp/${base}_TEMP.${ext}"
+
+		else
+			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			vfps_multiplied=$((${vfps} * ${multiplicator}))
+
+			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${vfps_multiplied}" "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )	
+		fi
+
+	else
+
+		if [ "${overwrite}" = true ];  then
+			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			vfps_multiplied=$((${vfps} * ${multiplicator}))
+			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: )
+			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: )
+
+			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
+			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
+
+			mkdir "/tmp/${base}_input_TEMP"
+			mkdir "/tmp/${base}_output_TEMP"
+
+			ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "/tmp/${base}audio_TEMP.${aext}"
+			ffmpeg -i "${dir}/${base}.${ext}" "/tmp/${base}_input_TEMP/frame_%08d.png"
+
+			cp "${input}" "/tmp/${base}_TEMP.${ext}"
+			rm "${input}"
+			"${value}" -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
+			if [ $acodec != "" ]; then
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_%08d.${aext}"$opt_video$opt_audio "${dir}/${base}.${vext}" 2>&1 )
+			else
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" $opt_video "${dir}/${base}.${vext}" 2>&1 )
+			fi
+			rm "/tmp/${base}_TEMP.${ext}"
+			
+			rm -r "/tmp/${base}_input_TEMP"
+			rm -r "/tmp/${base}_output_TEMP"
+			rm "/tmp/${base}audio_TEMP.${aext}"
+		else
+			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+			vfps_multiplied=$((${vfps} * ${multiplicator}))
+			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: )
+			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: )
+
+			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
+			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
+
+			mkdir "/tmp/${base}_input_TEMP"
+			mkdir "/tmp/${base}_output_TEMP"
+
+			ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "/tmp/${base}audio_TEMP.${aext}"
+			ffmpeg -i "${dir}/${base}.${ext}" "/tmp/${base}_input_TEMP/frame_%08d.png"
+
+			"${value}" -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
+			if [ $acodec != "" ]; then
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video$opt_audio "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
+			else
+				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
+			fi
+			rm -r "/tmp/${base}_input_TEMP"
+			rm -r "/tmp/${base}_output_TEMP"
+			rm "/tmp/${base}audio_TEMP.${aext}"
+		fi
+
+	fi
+	return $?
+}
 
 run_add_music () {
 
@@ -1182,84 +1266,61 @@ set_restore () {
 	############### Default values depending of the protocol
 	
 	def_action=${list_restore_denoise}
-	action_list=("$list_restore_denoise $list_restore_repair $list_restore_upscale")
+	action=${list_restore_denoise}
+	multiplicator_list=("2 4 6 8")
+
+	detect_gpu_restore
 
 	load_language
 
-	action=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_act_input_text}" ${action_list} ) || \
-		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	if [ "${action}" = "" ]; then action="${def_action}" 
-	
-		if [ "${action}" = "${list_restore_denoise}" ]; then
-			
-			def_model=${realesrgan_list}
-			model_list=("$srmd_list $realesrgan_list $nlmeans_list $atadenoiser_list")
-
-			detect_gpu_restore
-
-			load_language
-
-			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_interpolate_input_text}" $model_list) || \
-				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-			if [ "${model}" = "" ]; then model="${def_model}" 
-			fi
-
-			if [ "${model}" = "${srmd_list}" ]; then
-				value="${srmd_bin}"
-			elif [ "${model}" = "${realesrgan_list}" ]; then
-				value="${realesrgan_bin}"
-			elif [ "${model}" = "${nlmeans_list}" ]; then
-				value="nlmeans"
-			elif [ "${model}" = "${atadenoiser_list}" ]; then
-				value="atadenoiser"
-			fi
-		fi
-		
-		
-		elif [ "${action}" = "${list_restore_repair}" ]; then
-
-		
-
-
-		elif [ "${action}" = "${list_restore_upscale}" ]; then
-			
-			def_multi=2
-			value="${realsr_bin}"
-	
-			multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
+	if [ "${gpu_list}" != "CPU" ] && [ ! -z "${realesrgan_bin}" ]; then
+		action=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_act_input_text}" "${list_restore_denoise}" "${list_restore_repair}" "${list_restore_upscale}" ) || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-			if [ "${multiplicator}" = "" ]; then multiplicator="${def_multi}" 
-			fi
-
-		fi
-	
+		if [ "${action}" = "" ]; then action="${def_action}"
+		fi 
 	fi
 	
-	
-	
-	def_multi=2
+	if [ "${action}" = "${list_restore_denoise}" ]; then
+		
+		def_model=${list_realesrgan}
 
-	multiplicator_list=("2 4 6 8")
+		load_language
 
-	if [ "${gpu_list}" != "CPU" ] && [ ! -z "${rife_bin}" ]; then
-		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_interpolate_input_text}" $model_list) || \
+		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${list_realesrgan}" "${list_nlmeans}" "${list_atadenoiser}") || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		if [ "${model}" = "" ]; then model="${def_model}" 
 		fi
 
-		if [ "${model}" = "RIFE" ]; then
-			value="${rife_bin}"
-		elif [ "${model}" = "DAIN" ]; then
-			value="${dain_bin}"
-		elif [ "${model}" = "Minterpolate" ]; then
-			value="minterpolate"
+		if [ "${model}" = "${srmd_list}" ]; then
+			value="${srmd_bin}"
+		elif [ "${model}" = "${list_realesrgan}" ]; then
+			value="${realesrgan_bin}"
+		elif [ "${model}" = "${list_nlmeans}" ]; then
+			value="nlmeans"
+		elif [ "${model}" = "${list_atadenoiser}" ]; then
+			value="atadenoiser"
 		fi
+	
+	
+	elif [ "${action}" = "${list_restore_repair}" ]; then
+
+		value="${srmd_bin}"
+
+	elif [ "${action}" = "${list_restore_upscale}" ]; then
+		
+		def_multi=2
+		value="${realsr_bin}"
+
+		load_language
+
+		multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_multiplicator_input_text}" ${multiplicator_list} ) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${multiplicator}" = "" ]; then multiplicator="${def_multi}" 
+		fi
+
 	fi
 
-	multiplicator=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_interpolate_multiplicator_input_text}" ${multiplicator_list} ) || \
-		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-	if [ "${multiplicator}" = "" ]; then multiplicator="${def_multi}" 
-	fi
+	sleep 1
 
 	ask_overwrite=true
 
@@ -1377,14 +1438,14 @@ rife_bin=$(which /usr/share/rife-ncnn-vulkan/rife-ncnn-vulkan)
 dain_bin=$(which /usr/share/dain-ncnn-vulkan/dain-ncnn-vulkan)
 [ ! -z "${dain_bin}" ] && dain_list="DAIN"
 
-realesrgan_bin=$(which /usr/share/rife-ncnn-vulkan/realesrgan-ncnn-vulkan)
-[ ! -z "${realesrgan_bin}" ] && realesrgan_list="Realesrgan"
+realesrgan_bin=$(which /usr/share/realesrgan-ncnn-vulkan/realesrgan-ncnn-vulkan)
+[ ! -z "${realesrgan_bin}" ] && list_realesrgan="Realesrgan"
 
-srmd_bin=$(which /usr/share/rife-ncnn-vulkan/srmd-ncnn-vulkan)
+srmd_bin=$(which /usr/share/srmd-ncnn-vulkan/srmd-ncnn-vulkan)
 [ ! -z "${srmd_bin}" ] && srmd_list="SRMD"
 
-realsr_bin=$(which /usr/share/rife-ncnn-vulkan/realsr-ncnn-vulkan)
-[ ! -z "${realsr_bin}" ]
+realsr_bin=$(which /usr/share/realsr-ncnn-vulkan/realsr-ncnn-vulkan)
+[ ! -z "${realsr_bin}" ] && realsr_list="Realsr"
 
 #whisperx_bin=$(which $HOME/.local/share/pipx/venvs/whisperx)
 #[ ! -z "${whisperx_bin}" ] && whisperx_list="whisperx"
