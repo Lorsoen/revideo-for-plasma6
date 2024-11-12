@@ -112,10 +112,9 @@ case $fav in
         # Package managers
         sudo pacman -S --noconfirm --quiet yay
         sudo pacman -S --noconfirm --quiet python-pipx
-        # Video Restoration
-        yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
         # Video Upscale
         yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
+        yay -S --noconfirm --quiet realesrgan-ncnn-vulkan_bin
         # Interpolation
         yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
         # Audio separation
@@ -141,11 +140,10 @@ case $fav in
         # Package managers
         #sudo pacman -S --noconfirm --quiet yay
         #sudo pacman -S --noconfirm --quiet python-pipx
-        ### Video Restoration
-        ##yay -S --noconfirm --quiet realesrgan-ncnn-vulkan
         ### Video Upscale
-        ##yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
-        ##yay -S --noconfirm --quiet realsr-ncnn-vulkan-python
+        #yay -S --noconfirm --quiet srmd-ncnn-vulkan-bin
+        #yay -S --noconfirm --quiet realsr-ncnn-vulkan-bin
+        #yay -S --noconfirm --quiet realesrgan-ncnn-vulkan_bin
         ### Interpolation
         #yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
         #yay -S --noconfirm --quiet dain-ncnn-vulkan-bin
