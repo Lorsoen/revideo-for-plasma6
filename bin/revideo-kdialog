@@ -60,7 +60,7 @@ load_language_en_US () {
 	msg_restore_title="Restoring by doing \"${subaction}\" with \"${title_model}\""
 	msg_subaction_input_text="${att_gpu_available}What do you want to do? ('${def_subaction}' by default)"
 	msg_gpu_restore_input_text="Choose a model for restoring ('${def_model}' by default).${new_line}${att_gpu_available_restore}"
-	msg_restore_denoise_input_text="Choose the number by which you want to${new_line}denoise the video(s) ('${def_denoise}' by default):"
+	msg_restore_denoise_input_text="Enter a value for denoise intensity, $min_denoise to $max_denoise${new_line}($def_denoise by default).${new_line}Lower equals lower quality but longer process time.${new_line}${new_line}Tuning it may be necessary depending of the noise quantity.${new_line}"
 	msg_restore_upscale_input_text="Choose the number by which you want to${new_line}upscale the video(s)'s resolution ('${def_multi}' by default):"
 	msg_restore_finish_title="Restauration of \"${name}\" with \"${model}\""
 
@@ -104,7 +104,7 @@ load_language_en_US () {
 	if [ "${gpu_list}" != "CPU" ]; then
 	att_gpu_available="One or multiple compatible GPU(s) were detected.${new_line}"
 	att_gpu_available_interpolate="${new_line}'Minterpolate' runs exclusively on CPU but may be more accurate.${new_line}"
-	att_gpu_available_restore="${new_line}'SRMD', 'RealSR' and 'Waifu2x' benefits from your GPU but may be less accurate.${new_line}"
+	att_gpu_available_restore="${new_line}'SRMD', 'RealSR' and 'Real-ESRGAN' benefits from your GPU but may be less accurate.${new_line}"
 	fi
 
 	### Localizables
@@ -1147,6 +1147,8 @@ set_reencode_vp9 () {
 		while [ "${valid_value}" = "false" ]; do
 			bitrate=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_bitrate_encode_input_text}" $def_bitrate) || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+				if [ "${bitrate}" = "" ]; then bitrate="${def_bitrate}" 
+				fi
 
 			valid_value="true"
 
@@ -1273,6 +1275,7 @@ set_restore () {
 	subaction=${list_restore_denoise}
 	upscale_list=("2 3 4")
 	denoise_list=("2 4 6 8")
+	valid_value="false"
 
 	detect_gpu_restore
 
@@ -1285,19 +1288,47 @@ set_restore () {
 		fi 
 	fi
 	
+	############### Denoise
 	if [ "${subaction}" = "${list_restore_denoise}" ]; then
 
-		def_denoise=2
-
 		if [ "${gpu_list}" != "CPU" ]; then
-			def_model=${list_realesrgan}
+			def_model=${srmd_list_min}
 
 			load_language
 
-			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${srmd_list}" "${list_realesrgan}" "${list_nlmeans}" "${list_atadenoiser}") || \
+			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${srmd_list}" "${list_nlmeans}" "${list_atadenoiser}") || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 			if [ "${model}" = "" ]; then model="${def_model}" 
 			fi
+			
+			if [ "${model}" = "${srmd_list}" ]; then
+				value="${srmd_bin}"; title_model="SRMD"
+				min_denoise=0; max_denoise=10; def_denoise=3
+			elif [ "${model}" = "${list_nlmeans}" ]; then
+				value="nlmeans"; title_model="Nlmeans"
+				min_denoise=0; max_denoise=30; def_denoise=1
+			elif [ "${model}" = "${list_atadenoiser}" ]; then
+				value="atadenoiser"; title_model="Atadenoiser"
+				min_denoise=0; max_denoise=5; def_denoise=0.04
+			fi
+
+			load_language
+
+			while [ "${valid_value}" = "false" ]; do
+				denoise=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --inputbox "${msg_restore_denoise_input_text}" $def_denoise ) || \
+					{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+					if [ "${denoise}" = "" ]; then denoise="${def_denoise}" 
+					fi
+				
+				valid_value="true"
+
+				if [[ ! $denoise =~ ^[0.00-9.99]+$ ]] || [ $denoise -lt $min_denoise ] || [ $denoise -gt $max_denoise ]; then
+					"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+					valid_value="false"
+				fi
+				printf "$denoise"
+			done
+			
 		else
 			def_model=${list_nlmeans}
 
@@ -1309,7 +1340,7 @@ set_restore () {
 			fi
 		fi
 
-		if [ "${model}" = "${list_realesrgan}" ]; then
+		if [ "${model}" = "${realesrgan_list}" ]; then
 			value="${realesrgan_bin}"; title_model="Real-ESRGAN"
 		elif [ "${model}" = "${list_nlmeans}" ]; then
 			value="nlmeans"; title_model="Nlmeans"
@@ -1317,23 +1348,23 @@ set_restore () {
 			value="atadenoiser"; title_model="Atadenoiser"
 		fi
 	
-
+	############### Upscale
 	elif [ "${subaction}" = "${list_restore_upscale}" ]; then
 		
 		def_multi=2
 
 		load_language
 
-		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${srmd_list}" "${realsr_list}" "${list_realesrgan}") || \
+		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${srmd_list}" "${realsr_list}" "${realesrgan_list}") || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 			if [ "${model}" = "" ]; then model="${def_model}" 
 			fi
 
-		if [ "${model}" = "${srmd_list}" ]; then
+		if [ "${model}" == *"${srmd_list_min}"* ]; then
 			value="${srmd_bin}"; title_model="SRMD"
-		elif [ "${model}" = "${realsr_list}" ]; then
+		elif [ "${model}" == *"${realsr_list_min}"* ]; then
 			value="${realsr_bin}"; title_model="RealSR"
-		elif [ "${model}" = "${list_realesrgan}" ]; then
+		elif [ "${model}" == *"${realesrgan_list_min}"* ]; then
 			value="${realesrgan_bin}"; title_model="Real-ESRGAN"
 		fi
 
@@ -1346,6 +1377,7 @@ set_restore () {
 
 		opt_restore=" -n 2 -s $upscale"
 
+	############### Upscale and Denoize
 	elif [ "${subaction}" = "${list_restore_all}" ]; then
 
 		def_multi=2
@@ -1353,14 +1385,14 @@ set_restore () {
 
 		load_language
 
-		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${realsr_list}" "${list_realesrgan}") || \
+		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${realsr_list}" "${realesrgan_list}") || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		if [ "${model}" = "" ]; then model="${def_model}" 
 		fi
 
-		if [ "${model}" = "${realsr_list}" ]; then
+		if [ "${model}" == *"${realsr_list_min}"* ]; then
 			value="${realsr_bin}"; title_model="RealSR"
-		elif [ "${model}" = "${list_nlmeans}" ]; then
+		elif [ "${model}" == *"${list_nlmeans_min}"* ]; then
 			value="${realesrgan_bin}"; title_model="Real-ESRGAN"
 		fi
 
@@ -1498,17 +1530,14 @@ rife_bin=$(which /usr/share/rife-ncnn-vulkan/rife-ncnn-vulkan)
 dain_bin=$(which /usr/share/dain-ncnn-vulkan/dain-ncnn-vulkan)
 [ ! -z "${dain_bin}" ] && dain_list="DAIN"
 
-realesrgan_bin=$(which /usr/share/realesrgan-ncnn-vulkan/realesrgan-ncnn-vulkan)
-[ ! -z "${realesrgan_bin}" ] && list_realesrgan="Real-ESRGAN"
-
 srmd_bin=$(which /usr/share/srmd-ncnn-vulkan/srmd-ncnn-vulkan)
-[ ! -z "${srmd_bin}" ] && srmd_list="SRMD $att_srmd_list"
+[ ! -z "${srmd_bin}" ] && srmd_list="SRMD $att_srmd_list"; srmd_list_min="SRMD"
 
 realsr_bin=$(which /usr/share/realsr-ncnn-vulkan/realsr-ncnn-vulkan)
-[ ! -z "${realsr_bin}" ] && realsr_list="RealSR $att_realsr_list"
+[ ! -z "${realsr_bin}" ] && realsr_list="RealSR $att_realsr_list"; realsr_list_min="RealSR"
 
 realesrgan_bin=$(which /usr/share/realesrgan-ncnn-vulkan/realesrgan-ncnn-vulkan)
-[ ! -z "${realesrgan_bin}" ] && list_realesrgan="Real-ESRGAN $att_realesrgan_list"
+[ ! -z "${realesrgan_bin}" ] && realesrgan_list="Real-ESRGAN $att_realesrgan_list"; realesrgan_list_min="Real-ESRGAN"
 
 #whisperx_bin=$(which $HOME/.local/share/pipx/venvs/whisperx)
 #[ ! -z "${whisperx_bin}" ] && whisperx_list="whisperx"
