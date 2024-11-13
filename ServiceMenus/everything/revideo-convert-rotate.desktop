@@ -18,7 +18,7 @@
 #
 
 [Desktop Entry]
-Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts;_SEPARATOR_;rotate_90;rotate_180;rotate_270;rotate_custom;_SEPARATOR_;flip;flop
+Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;opus;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts;_SEPARATOR_;rotate_90;rotate_180;rotate_270;rotate_custom;_SEPARATOR_;flip;flop
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo convert and rotate service menu
@@ -27,6 +27,8 @@ TryExec=revideo-kdialog
 Type=Service
 X-KDE-Submenu=Reencode / Rotation
 X-KDE-Submenu[fr]=Réencodage / Rotation
+Terminal=true
+TerminalOptions=\s--noclose
 
 ################################################################################
 
@@ -61,6 +63,16 @@ Exec=revideo-kdialog reencode_dnxhd dnxhd %F
 Icon=video-webm
 Name=Convert to DNxHD
 Name[fr]=Convertir en DNxHD
+
+---------------------------------------------
+
+[Desktop Action opus]
+Exec=revideo-kdialog reencode_opus libopus %F
+Icon=audio-ogg
+Name=Convert to OPUS
+Name[fr]=Convertir en OPUS
+
+---------------------------------------------
 
 [Desktop Action mkv]
 Exec=revideo-kdialog rewrap mkv %F

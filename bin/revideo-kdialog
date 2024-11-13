@@ -222,6 +222,23 @@ run_reencode_vp9 () {
 	return $?
 }
 
+run_reencode_opus () {
+
+	if [ "${overwrite}" = true ];  then		
+		sleep 0.8
+		cp "${input}" "/tmp/${base}_TEMP.${ext}"
+		rm "${input}"
+
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -c:v copy -c:a "${value}" "${input}" 2>&1)	
+		rm "/tmp/${base}_TEMP.${ext}"
+	else
+		sleep 0.8
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a "${value}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
+	fi
+		
+	return $?
+}
+
 ######################################## Run Rewrap
 
 run_rewrap () {
@@ -1042,6 +1059,21 @@ set_reencode_vp9 () {
 
 	ask_overwrite=true
 
+	manage_input_separately "${@}"
+}
+
+set_reencode_opus () {
+	
+	value="${1}"
+	vcodec="${value}"
+	shift
+	
+	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
+
+	load_language
+
+	ask_overwrite=true
+	
 	manage_input_separately "${@}"
 }
 
