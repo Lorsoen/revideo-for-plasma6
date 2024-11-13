@@ -80,7 +80,8 @@ load_language_en_US () {
 	msg_gpu_encode_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
 	msg_multithread_input_text="Do you want to run in multithread ?${new_line}${new_line}This will completly mobilise your CPU, accelerating${new_line}the encoding speed at the cost of your computer's reactivity.${new_line}${new_line}Recommended if you're not going to use it during operation.${new_line}"
 	
-	
+	msg_pcm_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
+
 	msg_codec_encode_input_text="Enter the desired codec:"
 	msg_profile_encode_input_text="Enter the desired profile:"	
 
@@ -96,6 +97,8 @@ load_language_en_US () {
 	file_interpolated="_interpolated"; file_denoised="_denoised"; file_repaired="_repaired"
 	file_sepia="_sepia"; file_gray="_gray"
 	file_deinterlaced="_deinterlaced"
+
+	list_pcm_s16be="PCM 16 Bits"; list_pcm_s24be="PCM 24 Bits"; list_pcm_f32be="PCM Floating 32 Bits"
 }
 
 load_language () {
@@ -1069,18 +1072,20 @@ set_reencode_audio () {
 	shift
 
 	if [ "${acodec}" = "pcm" ]; then
-		def_profile="pcm_s16be"
+		def_profile="${list_pcm_s16be}"
 
-		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_prores_profile_encode_input_text}" $profile_list) || \
+		load_language
+
+		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_pcm_profile_encode_input_text}" "${list_pcm_s16be}" "${list_pcm_s24be}" "${list_pcm_f32be}") || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		if [ "${profile}" = "" ]; then profile="${def_profile}" 
 		fi
 
-		if [ "${profile}" = "422(Proxy)" ]; then
+		if [ "${profile}" = "${list_pcm_s16be}" ]; then
 			acodec="pcm_s16be"
-		elif [ "${profile}" = "422(LT)" ]; then
+		elif [ "${profile}" = "${list_pcm_s24be}" ]; then
 			acodec="pcm_s24be"
-		elif [ "${profile}" = "422(Standard)" ]; then
+		elif [ "${profile}" = "${list_pcm_f32be}" ]; then
 			acodec="pcm_f32be"
 		fi
 	fi
