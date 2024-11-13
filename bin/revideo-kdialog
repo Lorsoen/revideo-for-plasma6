@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# 	Part of kde-service-menu-revideo Version 0.2.0
+# 	Part of kde-service-menu-revideo Version 0.3.0
 # 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
 # 	Copyright (C) 2024 <fashim99.(at)gmail.com>
 #
@@ -222,18 +222,18 @@ run_reencode_vp9 () {
 	return $?
 }
 
-run_reencode_opus () {
+run_reencode_audio () {
 
 	if [ "${overwrite}" = true ];  then		
 		sleep 0.8
 		cp "${input}" "/tmp/${base}_TEMP.${ext}"
 		rm "${input}"
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -c:v copy -c:a "${value}" "${input}" 2>&1)	
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -c:v copy -c:a "${acodec}" "${input}" 2>&1)	
 		rm "/tmp/${base}_TEMP.${ext}"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a "${value}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a "${acodec}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
 	fi
 		
 	return $?
@@ -641,7 +641,7 @@ detect_audio_codec () {
 
 	## Alac
 	elif [[ ${detect_acodec} = *"alac"* ]]; then
-	acodec="alac"; aext="mp3"
+	acodec="alac"; aext="waw"
 
 	## Flac
 	elif [[ ${detect_acodec} = *"flac"* ]]; then
@@ -1062,20 +1062,34 @@ set_reencode_vp9 () {
 	manage_input_separately "${@}"
 }
 
-set_reencode_opus () {
+set_reencode_audio () {
 	
 	value="${1}"
-	vcodec="${value}"
+	acodec="${value}"
 	shift
-	
-	############### Detect compatible GPU and choose which encode protocol is used. Important values are decided fron this function
 
-	load_language
+	if [ "${acodec}" = "pcm" ]; then
+		def_profile="pcm_s16be"
+
+		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_prores_profile_encode_input_text}" $profile_list) || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${profile}" = "" ]; then profile="${def_profile}" 
+		fi
+
+		if [ "${profile}" = "422(Proxy)" ]; then
+			acodec="pcm_s16be"
+		elif [ "${profile}" = "422(LT)" ]; then
+			acodec="pcm_s24be"
+		elif [ "${profile}" = "422(Standard)" ]; then
+			acodec="pcm_f32be"
+		fi
+	fi
 
 	ask_overwrite=true
 	
 	manage_input_separately "${@}"
 }
+
 
 set_rewrap () {
 	value="${1}"

@@ -1,5 +1,5 @@
 #
-# 	Part of kde-service-menu-revideo Version 0.2.0
+# 	Part of kde-service-menu-revideo Version 0.3.0
 # 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
 # 	Copyright (C) 2024 <fashim99.(at)gmail.com>
 #
@@ -18,7 +18,7 @@
 #
 
 [Desktop Entry]
-Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;opus;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts;_SEPARATOR_;rotate_90;rotate_180;rotate_270;rotate_custom;_SEPARATOR_;flip;flop
+Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;aac;opus;_SEPARATOR_;alac;flac;pcm;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts;_SEPARATOR_;rotate_90;rotate_180;rotate_270;rotate_custom;_SEPARATOR_;flip;flop
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo convert and rotate service menu
@@ -66,11 +66,37 @@ Name[fr]=Convertir en DNxHD
 
 ---------------------------------------------
 
+[Desktop Action aac]
+Exec=revideo-kdialog reencode_audio aac %F
+Icon=audio-x-mp2
+Name=Convert to AAC
+Name[fr]=Convertir en AAC
+
 [Desktop Action opus]
-Exec=revideo-kdialog reencode_opus libopus %F
+Exec=revideo-kdialog reencode_audio libopus %F
 Icon=audio-ogg
-Name=Convert to OPUS
-Name[fr]=Convertir en OPUS
+Name=Convert to Opus
+Name[fr]=Convertir en Opus
+
+---------------------------------------------
+
+[Desktop Action alac]
+Exec=revideo-kdialog reencode_audio alac %F
+Icon=audio-x-flac+ogg
+Name=Convert to ALAC
+Name[fr]=Convertir en ALAC
+
+[Desktop Action flac]
+Exec=revideo-kdialog reencode_audio flac %F
+Icon=audio-x-flac+ogg
+Name=Convert to FLAC
+Name[fr]=Convertir en FLAC
+
+[Desktop Action pcm]
+Exec=revideo-kdialog reencode_audio pcm %F
+Icon=audio-x-wav
+Name=Convert to PCM
+Name[fr]=Convertir en PCM
 
 ---------------------------------------------
 
