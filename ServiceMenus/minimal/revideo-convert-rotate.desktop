@@ -34,19 +34,19 @@ TerminalOptions=\s--noclose
 
 [Desktop Action h264]
 Exec=revideo-kdialog reencode_h264 libx264 %F
-Icon=video-x-wmv
+Icon=video-webm
 Name=Convert to H264
 Name[fr]=Convertir en H264
 
 [Desktop Action h265]
 Exec=revideo-kdialog reencode_hevc libx265 %F
-Icon=video-x-wmv
+Icon=video-webm
 Name=Convert to HEVC
 Name[fr]=Convertir en HEVC
 
 [Desktop Action vp9]
 Exec=revideo-kdialog reencode_vp9 libvpx-vp9 %F
-Icon=video-webm
+Icon=video-x-matroska
 Name=Convert to VP9
 Name[fr]=Convertir en VP9
 
@@ -60,7 +60,7 @@ Name[fr]=Convertir en ProRes
 
 [Desktop Action dnxhd]
 Exec=revideo-kdialog reencode_dnxhd dnxhd %F
-Icon=video-webm
+Icon=video-x-wmv
 Name=Convert to DNxHD
 Name[fr]=Convertir en DNxHD
 
@@ -82,19 +82,19 @@ Name[fr]=Convertir en Opus
 
 [Desktop Action alac]
 Exec=revideo-kdialog reencode_audio alac %F
-Icon=audio-x-flac+ogg
+Icon=audio-x-adpcm
 Name=Convert to ALAC
 Name[fr]=Convertir en ALAC
 
 [Desktop Action flac]
 Exec=revideo-kdialog reencode_audio flac %F
-Icon=audio-x-flac+ogg
+Icon=audio-x-flac
 Name=Convert to FLAC
 Name[fr]=Convertir en FLAC
 
 [Desktop Action pcm]
 Exec=revideo-kdialog reencode_audio pcm %F
-Icon=audio-x-wav
+Icon=audio-x-vorbis+ogg
 Name=Convert to PCM
 Name[fr]=Convertir en PCM
 
