@@ -52,6 +52,10 @@ load_language_en_US () {
 	msg_rotate_title="Rotate file with angle of \"${value}\""
 	msg_rotate_angle_input_text="Enter the desired rotation angle:"
 	msg_rotate_finish_title="Rotation \"${name}\""
+
+	msg_resize_title="Resize file with \"${profile}\" method:"
+	msg_resize_profile_input_text="Choose the way that the video(s) should be resized (\"${def_profile}\" by default):${new_line}"
+	msg_resize_finish_title="Resizing \"${name}\""
 	
 	msg_interpolate_title="Interpolating with \"${model}\" by ${multiplicator}"
 	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count (2 by default):"
@@ -72,6 +76,8 @@ load_language_en_US () {
 	
 	msg_reencode_dnxhd_title="Reencoding to DNxHD"
 	msg_reencode_dnxhd_finish_title="Reencode \"${name}\" to DNxHD"
+
+
 
 	msg_dnxhd_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
 	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}${new_line}When in doubt, choose 'Auto'.${new_line}"
@@ -99,6 +105,7 @@ load_language_en_US () {
 	file_deinterlaced="_deinterlaced"
 
 	list_pcm_s16be="PCM 16 Bits"; list_pcm_s24be="PCM 24 Bits"; list_pcm_f32be="PCM Floating 32 Bits"
+	list_resize_stretch="Stretch" list_resize_fill="Fill" list_resize_bars="Black Bars"
 }
 
 load_language () {
@@ -242,9 +249,30 @@ run_reencode_audio () {
 	return $?
 }
 
+######################################## Run Resize
+
+run_resize () {
+	
+	if [ "${overwrite}" = true ];  then		
+		sleep 0.8
+		cp "${input}" "/tmp/${base}_TEMP.${ext}"
+		rm "${input}"
+
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -vf "scale="${value}"$opt_resize" "${input}" 2>&1)	
+		rm "/tmp/${base}_TEMP.${ext}"
+	else
+		sleep 0.8
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vf "scale="${value}"$opt_resize" "${dir}/${base}${file_converted}.${ext}" 2>&1)
+	fi
+		
+	return $?
+
+}
+
 ######################################## Run Rewrap
 
 run_rewrap () {
+	
 	if [ "${overwrite}" = true ] && [ "${ext}" = "${format}" ]; then
 		sleep 0.8
 		msg=$("${ffmpeg_bin}" -i "${input}" -c copy -map 0 "${input}.${format}" 2>&1)
@@ -1087,6 +1115,34 @@ set_reencode_audio () {
 			acodec="pcm_s24be"
 		elif [ "${profile}" = "${list_pcm_f32be}" ]; then
 			acodec="pcm_f32be"
+		fi
+	fi
+
+	ask_overwrite=true
+	
+	manage_input_separately "${@}"
+}
+
+set_resize () {
+	
+	value="${1}"
+	def_profile="${list_resize_fill}"
+	shift
+
+	load_language
+	
+	if [ ! "${value}" = "iw/2:ih/2" ] && [ ! "${value}" = "iw/1.333:ih/1.333" ] && [ ! "${value}" = "iw/4:ih/4" ]; then
+		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_resize_profile_input_text}" "${list_resize_stretch}" "${list_resize_fill}" "${list_resize_bars}") || \
+		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
+		if [ "${profile}" = "" ]; then profile="${def_profile}" 
+		fi
+
+		if [ "${profile}" = "${list_resize_stretch}" ]; then
+			opt_resize=",setsar=1"
+		elif [ "${profile}" = "${list_resize_fill}" ]; then
+			opt_resize=":force_original_aspect_ratio=increase,crop=$value"
+		elif [ "${profile}" = "${list_resize_bars}" ]; then
+			opt_resize=":force_original_aspect_ratio=decrease,pad=$value:-1:-1:color=black" # TODO: Correct Black Bar error with fixed formats
 		fi
 	fi
 
