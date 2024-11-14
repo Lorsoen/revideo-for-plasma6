@@ -258,11 +258,11 @@ run_resize () {
 		cp "${input}" "/tmp/${base}_TEMP.${ext}"
 		rm "${input}"
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -vf "scale="${value}"$opt_resize" "${input}" 2>&1)	
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -vf "scale=$value$opt_resize" "${input}" 2>&1)	
 		rm "/tmp/${base}_TEMP.${ext}"
 	else
 		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vf "scale="${value}"$opt_resize" "${dir}/${base}${file_converted}.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vf "scale=$value$opt_resize" "${dir}/${base}${file_resized}.${ext}" 2>&1)
 	fi
 		
 	return $?
