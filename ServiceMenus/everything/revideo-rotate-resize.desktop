@@ -1,0 +1,203 @@
+#
+# 	Part of kde-service-menu-revideo Version 0.3.0
+# 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
+# 	Copyright (C) 2024 <fashim99.(at)gmail.com>
+#
+# 	This program is free software: you can redistribute it and/or modify
+# 	it under the terms of the GNU General Public License as published by
+# 	the Free Software Foundation, either version 3 of the License, or
+# 	(at your option) any later version.
+#
+# 	This program is distributed in the hope that it will be useful,
+# 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+# 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# 	GNU General Public License for more details.
+#
+# 	You should have received a copy of the GNU General Public License
+# 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+[Desktop Entry]
+Actions=rotate_90;rotate_180;rotate_270;rotate_custom;_SEPARATOR_;flip;flop;_SEPARATOR_;resize_25;resize_50;resize_75;_SEPARATOR_;4:3;640x480;960x720;1440x1080;1920x1440;_SEPARATOR_;16:9;854x480;1280x720;1920x1080;2560x1440;3840x2160;_SEPARATOR_;16:10;_SEPARATOR_;21:9;2560x1080;3440x1440;5120x2160;_SEPARATOR_;custom_resize
+MimeType=video/*
+X-KDE-Priority=TopLevel
+Name=ReVideo convert and rotate service menu
+ServiceTypes=KonqPopupMenu/Plugin,video/*
+TryExec=revideo-kdialog
+Type=Service
+X-KDE-Submenu=Rotation / Resize
+X-KDE-Submenu[fr]=Rotation / Redimensionnement
+Terminal=true
+TerminalOptions=\s--noclose
+
+################################################################################
+
+[Desktop Action rotate_90]
+Exec=revideo-kdialog rotate 90 %F
+Icon=image-rotate-right-symbolic
+Name=Rotate 90°
+Name[fr]=Pivoter de 90°
+
+[Desktop Action rotate_180]
+Exec=revideo-kdialog rotate 180 %F
+Icon=image-rotate-right-symbolic
+Name=Rotate 180°
+Name[fr]=Pivoter de 180°
+
+[Desktop Action rotate_270]
+Exec=revideo-kdialog rotate 270 %F
+Icon=image-rotate-left-symbolic
+Name=Rotate -90°
+Name[fr]=Pivoter de -90°
+
+[Desktop Action rotate_custom]
+Exec=revideo-kdialog rotate custom %F
+Icon=view-refresh
+Name=Rotate...
+Name[fr]=Pivoter de...
+
+---------------------------------------------
+
+[Desktop Action flip]
+Exec=revideo-kdialog overturn vflip %F
+Icon=image-flip-vertical-symbolic
+Name=Overturn vertically
+Name[fr]=Retourner verticalement
+
+[Desktop Action flop]
+Exec=revideo-kdialog overturn hflip %F
+Icon=image-flip-horizontal-symbolic
+Name=Overturn horizontally
+Name[fr]=Retourner horizontalement
+
+---------------------------------------------
+
+[Desktop Action resize_25]
+Exec=reimage-kdialog resize iw/4:ih/4 %F
+Icon=image-resize-symbolic
+Name=Resize at 25%
+Name[fr]=Redimensionner à 25%
+
+[Desktop Action resize_50]
+Exec=reimage-kdialog resize iw/2:ih/2 %F
+Icon=image-resize-symbolic
+Name=Resize at 50%
+Name[fr]=Redimensionner à 50%
+
+[Desktop Action resize_75]
+Exec=reimage-kdialog resize iw/1.333:ih/1.333 %F
+Icon=image-resize-symbolic
+Name=Resize at 75%
+Name[fr]=Redimensionner à 75%
+
+---------------------------------------------
+
+[Desktop Action 4:3]
+Exec=reimage-kdialog resize 4:3 %F
+Icon=image-resize-symbolic
+Name=Resize at 4:3
+Name[fr]=Redimensionner en 4:3
+
+[Desktop Action 640x480]
+Exec=reimage-kdialog resize 640:480 %F
+Icon=image-resize-symbolic
+Name=Resize at 640x480 px
+Name[fr]=Redimensionner en 640x480 px
+
+[Desktop Action 960x720]
+Exec=reimage-kdialog resize 960:720 %F
+Icon=image-resize-symbolic
+Name=Resize at 960x720 px
+Name[fr]=Redimensionner en 960x720 px
+
+[Desktop Action 1440x1080]
+Exec=reimage-kdialog resize 1440:1080 %F
+Icon=image-resize-symbolic
+Name=Resize at 1440x1080 px
+Name[fr]=Redimensionner en 1440x1080 px
+
+[Desktop Action 1920x1440]
+Exec=reimage-kdialog resize 1920:1440 %F
+Icon=image-resize-symbolic
+Name=Resize at 1920x1440 px
+Name[fr]=Redimensionner en 1920x1440 px
+
+---------------------------------------------
+
+[Desktop Action 16:9]
+Exec=reimage-kdialog resize 16:9 %F
+Icon=image-resize-symbolic
+Name=Resize at 16:9
+Name[fr]=Redimensionner en 16:9
+
+[Desktop Action 854x480]
+Exec=reimage-kdialog resize 854:480 %F
+Icon=image-resize-symbolic
+Name=Resize at 854x480 px
+Name[fr]=Redimensionner en 854x480 px
+
+[Desktop Action 1280x720]
+Exec=reimage-kdialog resize 1280:720 %F
+Icon=image-resize-symbolic
+Name=Resize at 1280x720 px
+Name[fr]=Redimensionner en 1280x720 px
+
+[Desktop Action 1920x1080]
+Exec=reimage-kdialog resize 1920:1080 %F
+Icon=image-resize-symbolic
+Name=Resize at 1920x1080 px
+Name[fr]=Redimensionner en 1920x1080 px
+
+[Desktop Action 2560x1440]
+Exec=reimage-kdialog resize 2560:1440 %F
+Icon=image-resize-symbolic
+Name=Resize at 2560x1440 px
+Name[fr]=Redimensionner en 2560x1440 px
+
+[Desktop Action 3840x2160]
+Exec=reimage-kdialog resize 3840:2160 %F
+Icon=image-resize-symbolic
+Name=Resize at 3840x2160 px
+Name[fr]=Redimensionner en 3840x2160 px
+
+---------------------------------------------
+
+[Desktop Action 16:10]
+Exec=reimage-kdialog resize 16:10 %F
+Icon=image-resize-symbolic
+Name=Resize at 16:10
+Name[fr]=Redimensionner en 16:10
+
+---------------------------------------------
+
+[Desktop Action 21:9]
+Exec=reimage-kdialog resize 21:9 %F
+Icon=image-resize-symbolic
+Name=Resize at 21:9
+Name[fr]=Redimensionner en 21:9
+
+[Desktop Action 2560x1080]
+Exec=reimage-kdialog resize 2560:1080 %F
+Icon=image-resize-symbolic
+Name=Resize at 2560x1080 px
+Name[fr]=Redimensionner en 2560x1080 px
+
+[Desktop Action 3440x1440]
+Exec=reimage-kdialog resize 3440:1440 %F
+Icon=image-resize-symbolic
+Name=Resize at 3440x1440 px
+Name[fr]=Redimensionner en 3440x1440 px
+
+[Desktop Action 5120x2160]
+Exec=reimage-kdialog resize 5120:2160 %F
+Icon=image-resize-symbolic
+Name=Resize at 5120x2160 px
+Name[fr]=Redimensionner en 5120x2160 px
+
+---------------------------------------------
+
+[Desktop Action custom_resize]
+Exec=reimage-kdialog resize custom %F
+Icon=image-resize-symbolic
+Name=Resize at...
+Name[fr]=Redimensionner en...

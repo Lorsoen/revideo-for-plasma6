@@ -17,16 +17,16 @@
 # 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-[Desktop Entry]
-Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;aac;opus;_SEPARATOR_;alac;flac;pcm;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts;_SEPARATOR_;rotate_90;rotate_180;rotate_270;rotate_custom;_SEPARATOR_;flip;flop
+[Desktop Entry] 
+Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;aac;opus;_SEPARATOR_;alac;flac;pcm;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo convert and rotate service menu
 ServiceTypes=KonqPopupMenu/Plugin,video/*
 TryExec=revideo-kdialog
 Type=Service
-X-KDE-Submenu=Reencode / Rotation
-X-KDE-Submenu[fr]=Réencodage / Rotation
+X-KDE-Submenu=Reencode / Rewrap
+X-KDE-Submenu[fr]=Réencodage / Réencapsulage
 Terminal=true
 TerminalOptions=\s--noclose
 
@@ -149,43 +149,3 @@ Exec=revideo-kdialog rewrap ts %F
 Icon=video-webm
 Name=Rewrap in TS
 Name[fr]=Réencapsuler en TS
-
----------------------------------------------
-
-[Desktop Action rotate_90]
-Exec=revideo-kdialog rotate 90 %F
-Icon=image-rotate-right-symbolic
-Name=Rotate 90°
-Name[fr]=Pivoter de 90°
-
-[Desktop Action rotate_180]
-Exec=revideo-kdialog rotate 180 %F
-Icon=image-rotate-right-symbolic
-Name=Rotate 180°
-Name[fr]=Pivoter de 180°
-
-[Desktop Action rotate_270]
-Exec=revideo-kdialog rotate 270 %F
-Icon=image-rotate-left-symbolic
-Name=Rotate -90°
-Name[fr]=Pivoter de -90°
-
-[Desktop Action rotate_custom]
-Exec=revideo-kdialog rotate custom %F
-Icon=view-refresh
-Name=Rotate...
-Name[fr]=Pivoter de...
-
----------------------------------------------
-
-[Desktop Action flip]
-Exec=revideo-kdialog overturn vflip %F
-Icon=image-flip-vertical-symbolic
-Name=Overturn vertically
-Name[fr]=Retourner verticalement
-
-[Desktop Action flop]
-Exec=revideo-kdialog overturn hflip %F
-Icon=image-flip-horizontal-symbolic
-Name=Overturn horizontally
-Name[fr]=Retourner horizontalement
