@@ -73,19 +73,19 @@ Name[fr]=Retourner horizontalement
 ---------------------------------------------
 
 [Desktop Action resize_25]
-Exec=revideo-kdialog resize iw/4:ih/4 %F
+Exec=revideo-kdialog resize OG_W/4:OG_H/4 %F
 Icon=image-resize-symbolic
 Name=Resize at 25%
 Name[fr]=Redimensionner à 25%
 
 [Desktop Action resize_50]
-Exec=revideo-kdialog resize iw/2:ih/2 %F
+Exec=revideo-kdialog resize OG_W/2:OG_H/2 %F
 Icon=image-resize-symbolic
 Name=Resize at 50%
 Name[fr]=Redimensionner à 50%
 
 [Desktop Action resize_75]
-Exec=revideo-kdialog resize iw/1.333:ih/1.333 %F
+Exec=revideo-kdialog resize OG_W/1.333:OG_H/1.333 %F
 Icon=image-resize-symbolic
 Name=Resize at 75%
 Name[fr]=Redimensionner à 75%
@@ -93,7 +93,7 @@ Name[fr]=Redimensionner à 75%
 ---------------------------------------------
 
 [Desktop Action 4:3]
-Exec=revideo-kdialog resize ih*4/3:ih %F
+Exec=revideo-kdialog resize OG_H*4/3:OG_H %F
 Icon=image-resize-symbolic
 Name=Resize at 4:3
 Name[fr]=Redimensionner en 4:3
@@ -125,7 +125,7 @@ Name[fr]=Redimensionner en 1920x1440 px
 ---------------------------------------------
 
 [Desktop Action 16:9]
-Exec=revideo-kdialog resize ih*16/9:ih,setsar=1 %F
+Exec=revideo-kdialog resize OG_H*16/9:OG_H %F
 Icon=image-resize-symbolic
 Name=Resize at 16:9
 Name[fr]=Redimensionner en 16:9
@@ -163,7 +163,7 @@ Name[fr]=Redimensionner en 3840x2160 px
 ---------------------------------------------
 
 [Desktop Action 16:10]
-Exec=revideo-kdialog resize ih*16/10:ih,setsar=1 %F
+Exec=revideo-kdialog resize OG_H*16/10:OG_H %F
 Icon=image-resize-symbolic
 Name=Resize at 16:10
 Name[fr]=Redimensionner en 16:10
@@ -171,7 +171,7 @@ Name[fr]=Redimensionner en 16:10
 ---------------------------------------------
 
 [Desktop Action 21:9]
-Exec=revideo-kdialog resize ih*21/9:ih,setsar=1 %F
+Exec=revideo-kdialog resize OG_H*21/9:OG_H %F
 Icon=image-resize-symbolic
 Name=Resize at 21:9
 Name[fr]=Redimensionner en 21:9

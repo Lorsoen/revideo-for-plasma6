@@ -252,7 +252,18 @@ run_reencode_audio () {
 ######################################## Run Resize
 
 run_resize () {
-	
+
+	width=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0:s=x "${dir}/${base}.${ext}" 2>&1); value=$(echo "${value}" | sed "s~OG_W~$width~g" 2>&1)
+	height=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0:s=x "${dir}/${base}.${ext}" 2>&1); value=$(echo "${value}" | sed "s~OG_H~$height~g" 2>&1)
+
+	if [ "${profile}" = "${list_resize_stretch}" ]; then
+		opt_resize=",setsar=1"
+	elif [ "${profile}" = "${list_resize_fill}" ]; then
+		opt_resize=":force_original_aspect_ratio=increase,crop=$value"    		      # Workaround for filters changing the iw / ih values.																					  
+	elif [ "${profile}" = "${list_resize_bars}" ]; then								  # Maybe filter complex would be possible but don't want to bother for now (TODO)
+		opt_resize=":force_original_aspect_ratio=decrease,pad=$value:-1:-1:color=black"
+	fi
+
 	if [ "${overwrite}" = true ];  then		
 		sleep 0.8
 		cp "${input}" "/tmp/${base}_TEMP.${ext}"
@@ -1127,23 +1138,18 @@ set_resize () {
 	
 	value="${1}"
 	def_profile="${list_resize_fill}"
+
 	shift
 
 	load_language
 	
-	if [ ! "${value}" = "iw/2:ih/2" ] && [ ! "${value}" = "iw/1.333:ih/1.333" ] && [ ! "${value}" = "iw/4:ih/4" ]; then
+	if [ ! "${value}" = "OG_W/2:OG_H/2" ] && [ ! "${value}" = "OG_W/1.333:OG_H/1.333" ] && [ ! "${value}" = "OG_W/4:OG_H/4" ]; then
 		profile=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_resize_profile_input_text}" "${list_resize_stretch}" "${list_resize_fill}" "${list_resize_bars}") || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		if [ "${profile}" = "" ]; then profile="${def_profile}" 
 		fi
 
-		if [ "${profile}" = "${list_resize_stretch}" ]; then
-			opt_resize=",setsar=1"
-		elif [ "${profile}" = "${list_resize_fill}" ]; then
-			opt_resize=":force_original_aspect_ratio=increase,crop=$value"
-		elif [ "${profile}" = "${list_resize_bars}" ]; then
-			opt_resize=":force_original_aspect_ratio=decrease,pad=$value:-1:-1:color=black" # TODO: Correct Black Bar error with fixed formats
-		fi
+		# Applied at run for reasons
 	fi
 
 	ask_overwrite=true
