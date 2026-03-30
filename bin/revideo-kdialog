@@ -1009,7 +1009,7 @@ set_reencode_h264 () {
 
 			valid_value="true"
 
-			if [[ ! $vbitrate =~ ^[0-9]+$ ]] || [ $vbitrate -lt $min_bitrate ] || [ $vbitrate -gt $max_bitrate ]; then
+			if [[ ! $vbitrate =~ ^[0-9]+$ ]]; then
 				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
 				valid_value="false"
 			fi
