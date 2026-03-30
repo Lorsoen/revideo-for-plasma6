@@ -38,16 +38,11 @@ else
 fi
 
 echo "removing ${bin_dir}revideo-kdialog"
-rm "${bin_dir}/revideo-kdialog"
+rm ${bin_dir}/revideo-kdialog
 
-echo "removing ${servicemenu_dir}/revideo-reencode-rewrap.desktop"
-rm "${servicemenu_dir}/revideo-reencode-rewrap.desktop"
-echo "removing ${servicemenu_dir}/revideo-rotate-resize.desktop"
-rm "${servicemenu_dir}/revideo-rotate-resize.desktop"
-echo "removing ${servicemenu_dir}/revideo-metadata.desktop"
-rm "${servicemenu_dir}/revideo-metadata.desktop"
-echo "removing ${servicemenu_dir}/revideo-tools.desktop"
-rm "${servicemenu_dir}/revideo-tools.desktop"
+echo "removing ${servicemenu_dir}/revideo..."
+rm ${servicemenu_dir}/revideo-*
+
 
 echo "removing ${doc_dir}"
 rm -rf "${doc_dir}"
