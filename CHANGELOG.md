@@ -1,5 +1,6 @@
 ### 0.2.5
 
-- Fix Interpolation multiplier handling and remove DAIN support
+- Fix Interpolation (multiplier and files with audio handling)
+- Remove DAIN support
 
 <br/>

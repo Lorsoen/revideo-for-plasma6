@@ -351,7 +351,7 @@ run_interpolate () {
 			cp "${input}" "/tmp/${base}_TEMP.${ext}"
 			rm "${input}"
 			"${value}" -m "/usr/share/rife-ncnn-vulkan/rife-v4.25-heavy" -n $[ ${vfps_total} * ${multiplicator} ] -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
-			if [ $acodec != "" ]; then
+			if [ "$detect_acodec" != "" ]; then
 				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_%08d.${aext}"$opt_video$opt_audio "${dir}/${base}.${vext}" 2>&1 )
 			else
 				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" $opt_video "${dir}/${base}.${vext}" 2>&1 )
@@ -360,7 +360,7 @@ run_interpolate () {
 
 			rm -r "/tmp/${base}_input_TEMP"
 			rm -r "/tmp/${base}_output_TEMP"
-			rm "/tmp/${base}audio_TEMP.${aext}"
+			if [ "$detect_acodec" != "" ]; then rm "/tmp/${base}audio_TEMP.${aext}"; fi
 		else
 			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
 			vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
@@ -379,14 +379,14 @@ run_interpolate () {
 
 			printf $vfps_total
 			"${value}" -m "/usr/share/rife-ncnn-vulkan/rife-v4.25-heavy" -n $[ ${vfps_total} * ${multiplicator} ] -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
-			if [ $acodec != "" ]; then
+			if [ "$detect_acodec" != "" ]; then
 				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video$opt_audio "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
 			else
 				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
 			fi
 			rm -r "/tmp/${base}_input_TEMP"
 			rm -r "/tmp/${base}_output_TEMP"
-			rm "/tmp/${base}audio_TEMP.${aext}"
+			if [ "$detect_acodec" != "" ]; then rm "/tmp/${base}audio_TEMP.${aext}"; fi
 		fi
 
 	fi
