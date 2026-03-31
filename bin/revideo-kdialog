@@ -40,7 +40,7 @@ en_US () {
 	msg_common_whisperx_not_found="Software whisperx not found! Please, install it."
 	msg_common_openai_not_found="Software openai-whisper not found! Please, install it."
 	msg_common_action_not_found="The requested action is not implemented."
-	msg_common_overwrite="In case the images to be saved have the same name as those to be processed,${new_line}do you want to overwrite them?"
+	msg_common_overwrite="Do you want to keep the original files?"
 	msg_common_abort="Operation interrupted by the user."
 	msg_common_file_not_found="File \"${name}\" not found!"
 	msg_common_name_error="The file name \"${name}\" does not match a recognized format for a date.${new_line}${new_line}The name must be of the type: YYYY-MM-DD_HHMMSS.jpg"
@@ -149,7 +149,7 @@ load_strings () {
 	## - if localized strings are incomplete use english only fot missing strings :-)
 	## - file_en_US (file name attachments) separated and managed by overwrite prompt
 	en_US && [ "${lang}" != "en_US" ] && ${lang}
-	if [ "${overwrite}" = false ];  then file_en_US && [ "${lang}" != "en_US" ] && file_${lang}; fi
+	[ "${overwrite}" = false ] && file_en_US && [ "${lang}" != "en_US" ] && file_${lang}
 }
 
 lang=${LANG//.?*/}
@@ -927,13 +927,13 @@ common_ncnn_end () {
 
 ###################################################################
 
-do_you_want_to_overwrite () {
-	"${kdialog_bin}" --icon configure --title "${!msg_title}" --warningyesno "${msg_common_overwrite}" && overwrite=true || \
+overwrite_prompt () {
+	"${kdialog_bin}" --icon configure --title "${!msg_title}" --warningyesno "${msg_common_overwrite}" && overwrite=false || \
 		{
-			[ $? -eq 1 ] && overwrite=false || \
+			[ $? -eq 1 ] && overwrite=true || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		}
-	load_strings
+	if [ "${overwrite}" = true ];  then load_strings; fi
 }
 
 manage_input_separately () {
@@ -946,7 +946,7 @@ manage_input_separately () {
 	type run_${action} > /dev/null || \
 		{ "${kdialog_bin}" --title "${msg_common_software_not_found}" --icon configure --error "${msg_common_action_not_found_text}" && exit 2; }
 
-	[ "${ask_overwrite}" = true ] && do_you_want_to_overwrite
+	[ "${ask_overwrite}" = true ] && overwrite_prompt
 
 	quantity=$#
 	dbus_ref=$(kdialog --icon configure --title "${!msg_title}" --progressbar "${msg_common_start}" $quantity)
