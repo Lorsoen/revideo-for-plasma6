@@ -148,7 +148,6 @@ case $fav in
         ##yay -S --noconfirm --quiet realsr-ncnn-vulkan-python
         ### Interpolation
         #yay -S --noconfirm --quiet rife-ncnn-vulkan-bin
-        #yay -S --noconfirm --quiet dain-ncnn-vulkan-bin
         ### Audio separation
         ##pipx install openunmix
         ### Transcript
