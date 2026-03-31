@@ -132,14 +132,13 @@ en_US () {
 	fi
 
     ### Conditionnal
-}
-
-file_en_US () {
-       ### File Attachments
+    file_en_US () {
+        ### File Attachments
 		file_converted="_converted"; file_rotated="_rotated"; file_resized="_resized"
 		file_interpolated="_interpolated"; file_denoised="_denoised"; file_upscaled="_denoised"; file_restore_all="_upscaled and denoised"
 		file_sepia="_sepia"; file_gray="_gray"
 		file_deinterlaced="_deinterlaced"
+    }
 }
 
 
@@ -898,7 +897,7 @@ common_ncnn_start () {
 	ffmpeg -i "${dir}/${base}.${ext}" "/tmp/${base}_input_TEMP/frame_%08d.png"
 
 	cp "${input}" "/tmp/${base}_TEMP.${ext}"
-	rm "${input}"
+	if [ "${overwrite}" = true ];  then rm "${input}"; fi
 }
 
 common_ncnn_end () {
@@ -913,7 +912,7 @@ common_ncnn_end () {
 	# Wipe
 	rm -r "/tmp/${base}_input_TEMP"
 	rm -r "/tmp/${base}_output_TEMP"
-	if [ "${overwrite}" = true ];  then rm "/tmp/${base}_TEMP.${ext}"; fi
+	rm "/tmp/${base}_TEMP.${ext}"
 	if [ "${detect_acodec}" != "" ]; then rm "/tmp/${base}audio_TEMP.${aext}"; fi
 }
 
