@@ -17,7 +17,7 @@
 # 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-[Desktop Entry] 
+[Desktop Entry]
 Actions=h264;h265;vp9;_SEPARATOR_;prores;dnxhd;_SEPARATOR_;aac;opus;_SEPARATOR_;alac;flac;pcm;_SEPARATOR_;mkv;mp4;mov;avi;_SEPARATOR_;mxf;mts;m2ts;ts
 MimeType=video/*
 X-KDE-Priority=TopLevel

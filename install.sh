@@ -51,7 +51,7 @@ if [[ ${EUID} -eq 0 ]]; then
                 exit 1
         esac
     done
-    
+
 else
     bin_dir="${user_install_prefix}/bin"
     servicemenu_dir="$(${qtpaths_bin} --locate-dirs GenericDataLocation kio/servicemenus | sed 's/:.*//')"
@@ -72,7 +72,7 @@ if [[ ${EUID} -eq 0 ]]; then
     echo "Installing kde-service-menu-revideo (${install_mode}) ..."
 
     printf "revideo comes with extra AI tools that requires extra installation. \n\n"
-    printf "Which install do you want to do ? \n"  
+    printf "Which install do you want to do ? \n"
 
     select fav in "${install_list[@]}"; do
         break
@@ -108,7 +108,7 @@ case $fav in
         install -d "${servicemenu_dir}" && \
         install -m 755 -p ServiceMenus/normal/*.desktop "${servicemenu_dir}" && \
         # install extra dependencies
-        
+
         # Package managers
         sudo pacman -S --noconfirm --quiet yay
         sudo pacman -S --noconfirm --quiet python-pipx
@@ -122,11 +122,11 @@ case $fav in
         #pipx install openunmix
         # Transcript
         #pipx install whisperx
-        ;;      
+        ;;
 
     ("Everything you have!")
         echo "OK. Beginning everything install:"
-        
+
         # install required binaries
         install -d "${bin_dir}" && \
         install -m 755 -p bin/* "${bin_dir}" && \
@@ -154,9 +154,9 @@ case $fav in
         ### Transcript
         ##pipx install openai-whisper
         pipx install whisperx
-        ;;    
+        ;;
 
-    (*) 
+    (*)
         echo "Exiting install..."
         exit 1;;
 
