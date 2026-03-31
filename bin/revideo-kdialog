@@ -635,10 +635,10 @@ detect_video_codec () {
 			fi
 		elif [ $vfallback=$loc_lossy ]; then
 
-			if [ def_encoder="Nvidia" ]; then
+			if [ $def_encoder="Nvidia" ]; then
 				vcodec="h264_nvenc"; vquality=p4
 				opt_video=" -c:v $vcodec -crf $vbitrate -preset $vquality"
-			elif [ def_encoder="Intel" ]; then
+			elif [ $def_encoder="Intel" ]; then
 				vcodec="h264_qsv"; vquality=slow
 			else
 				vcodec="libx264"; vbitrate=20; vquality=medium
