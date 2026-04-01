@@ -18,7 +18,7 @@
 #
 
 [Desktop Entry]
-Actions=disassemble_jpg;disassemble_png;dissasemble_tracks;_SEPARATOR_;transcript;_SEPARATOR_;inter;restore;_SEPARATOR_;sepia;gray
+Actions=disassemble_jpg;disassemble_png;dissasemble_tracks;_SEPARATOR_;add_music;transcript;_SEPARATOR_;inter;restore;_SEPARATOR_;sepia;gray
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo tools service menu

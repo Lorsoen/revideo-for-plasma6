@@ -18,6 +18,15 @@
 # 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
+# Credits :
+# - Script author : Lorsoen
+# - Original reimage script author : Giuseppe Benigno
+#
+# Special thanks :
+# - Ffmproivsr : https://amiaopensource.github.io/ffmprovisr/#split_audio_video
+# - Ffmpeg Wiki : https://trac.ffmpeg.org/wiki
+
 # environment variables
 qtpaths_bin="${qtpaths_bin:-"qtpaths"}"
 user_install_prefix="${user_install_prefix:-"${HOME}/.local"}"

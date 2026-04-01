@@ -19,6 +19,23 @@ set -x
 # 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
+# Credits :
+# - Script author : Lorsoen
+# - Original reimage script author : Giuseppe Benigno
+#
+# Special thanks :
+# - Ffmproivsr : https://amiaopensource.github.io/ffmprovisr/#split_audio_video
+# - Ffmpeg Wiki : https://trac.ffmpeg.org/wiki
+
+
+
+
+
+
+
+
+
 
 ###################################################################
 
@@ -29,8 +46,6 @@ set -x
 ###################################################################
 
 
-new_line="
-"
 
 en_US () {
 	### Common
@@ -43,7 +58,7 @@ en_US () {
 	msg_common_overwrite="Do you want to keep the original files?"
 	msg_common_abort="Operation interrupted by the user."
 	msg_common_file_not_found="File \"${name}\" not found!"
-	msg_common_name_error="The file name \"${name}\" does not match a recognized format for a date.${new_line}${new_line}The name must be of the type: YYYY-MM-DD_HHMMSS.jpg"
+	msg_common_name_error="The file name \"${name}\" does not match a recognized format for a date.${cr}${cr}The name must be of the type: YYYY-MM-DD_HHMMSS.jpg"
 	msg_common_start="Initialising... "
 	msg_common_progress="Processing file $processed of $quantity ($(basename "${input}"))"
 	msg_common_finish_ok="Done."
@@ -65,21 +80,21 @@ en_US () {
 
 	### Resize
 	msg_resize_title="Resize file with \"${profile}\" method:"
-	msg_resize_profile_input_text="Choose which resizing method should be used (\"${def_profile}\" by default):${new_line}"
+	msg_resize_profile_input_text="Choose which resizing method should be used (\"${def_profile}\" by default):${cr}"
 	msg_resize_finish_title="Resizing \"${name}\""
 
     ### Interpolate
 	msg_interpolate_title="Interpolating with \"${model}\" by ${multiplicator}"
-	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count (2 by default):"
-	msg_gpu_interpolate_input_text="${blk_gpu_available}Choose a model for interpolation ($def_model by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU, which is slow!${new_line}"
+	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${cr}multiply the video(s)'s frame count (2 by default):"
+	msg_gpu_interpolate_input_text="${blk_gpu_available}Choose a model for interpolation ($def_model by default).${cr}${cr}'Minterpolate' runs exclusively on CPU, which is slow!${cr}"
 	msg_interpolate_finish_title="Interpolation of \"${name}\" by ${multiplicator}"
 
     ### Restore
 	msg_restore_title="Restoring by doing \"${subaction}\" with \"${title_model}\""
 	msg_subaction_input_text="${blk_gpu_available}What do you want to do? ('${def_subaction}' by default)"
-	msg_restore_gpu_input_text="Choose a model for restoring ('${def_model}' by default).${new_line}'SRMD', 'RealSR' and 'Real-ESRGAN' benefits from your GPU but may be more inconsistent depending of the model."
-	msg_restore_denoise_input_text="Enter a value for denoise intensity, $min_denoise to $max_denoise${new_line}($def_denoise by default).${new_line}Lower equals lower quality but longer process time.${new_line}${new_line}Tuning it may be necessary depending of the noise quantity.${new_line}"
-	msg_restore_upscale_input_text="Choose the number by which you want to${new_line}upscale the video(s)'s resolution ('${def_multi}' by default):"
+	msg_restore_gpu_input_text="Choose a model for restoring ('${def_model}' by default).${cr}'SRMD', 'RealSR' and 'Real-ESRGAN' benefits from your GPU but may be more inconsistent depending of the model."
+	msg_restore_denoise_input_text="Enter a value for denoise intensity, $min_denoise to $max_denoise${cr}($def_denoise by default).${cr}Lower equals lower quality but longer process time.${cr}${cr}Tuning it may be necessary depending of the noise quantity.${cr}"
+	msg_restore_upscale_input_text="Choose the number by which you want to${cr}upscale the video(s)'s resolution ('${def_multi}' by default):"
 	msg_restore_finish_title="Restauration of \"${name}\" with \"${model}\""
 
     ### Reencode
@@ -98,29 +113,29 @@ en_US () {
 	msg_reencode_dnxhd_title="Reencoding to DNxHD"
 	msg_reencode_dnxhd_finish_title="Reencode \"${name}\" to DNxHD"
 
-	msg_dnxhd_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
-	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}${new_line}When in doubt, choose 'Auto'.${new_line}"
-	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Lower equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
-	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${new_line}Slower equals better quality but slower encoding / decoding time.${new_line}"
-	msg_gpu_encode_input_text="${blk_gpu_available}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
-	msg_multithread_input_text="Do you want to run in multithread ?${new_line}${new_line}This will completly mobilise your CPU, accelerating${new_line}the encoding speed at the cost of your computer's reactivity.${new_line}${new_line}Recommended if you're not going to use it during operation.${new_line}"
+	msg_dnxhd_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${cr}"
+	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${cr}${cr}When in doubt, choose 'Auto'.${cr}"
+	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${cr}Lower equals better quality but bigger file.${cr}${cr}Tuning it may be necessary for videos with a lot of movement.${cr}"
+	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${cr}Slower equals better quality but slower encoding / decoding time.${cr}"
+	msg_gpu_encode_input_text="${blk_gpu_available}Choose an encoding method ($def_encoder by default).${cr}${cr}GPU encoding may be faster depending of it's performance.${cr}It will also free your computer for other tasks.${cr}"
+	msg_multithread_input_text="Do you want to run in multithread ?${cr}${cr}This will completly mobilise your CPU, accelerating${cr}the encoding speed at the cost of your computer's reactivity.${cr}${cr}Recommended if you're not going to use it during operation.${cr}"
 
-	msg_pcm_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
+	msg_pcm_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${cr}"
 
 	msg_codec_encode_input_text="Enter the desired codec:"
 	msg_profile_encode_input_text="Enter the desired profile:"
 
 
 
-	msg_afallback_encode_input_text="'${base}.${ext}''s audio codec is not known from revideo.${new_line}It will fallback to either a lossless codec (PCM) or a lossy one (Opus)${new_line}($def_afallback by default)${new_line}${new_line}Choose one:${new_line}"
-	msg_vfallback_encode_input_text="'${base}.${ext}''s video codec is not known from revideo.${new_line}It will fallback to either a lossless codec (ProRes) or a lossy one (h264)${new_line}($def_vfallback by default)${new_line}${new_line}Choose one:${new_line}"
+	msg_afallback_encode_input_text="'${base}.${ext}''s audio codec is not known from revideo.${cr}It will fallback to either a lossless codec (PCM) or a lossy one (Opus)${cr}($def_afallback by default)${cr}${cr}Choose one:${cr}"
+	msg_vfallback_encode_input_text="'${base}.${ext}''s video codec is not known from revideo.${cr}It will fallback to either a lossless codec (ProRes) or a lossy one (h264)${cr}($def_vfallback by default)${cr}${cr}Choose one:${cr}"
 
 
 	### Building blocks
 	blk_srmd_list="(Best for Real-Life)"
 	blk_realsr_list="(Best for Real-Life)"
 	blk_realesrgan_list="(Best for Animation)"
-    blk_gpu_available="One or multiple compatible GPU(s) were detected.${new_line}"
+    blk_gpu_available="One or multiple compatible GPU(s) were detected.${cr}"
 
 
 	### Lists
@@ -145,6 +160,8 @@ en_US () {
 
 
 load_strings () {
+    cr="
+    "
 	## Load localized strings AFTER english strings
 	## - if localized strings not found use english for default
 	## - if localized strings are incomplete use english only fot missing strings :-)
@@ -178,6 +195,10 @@ help () {
 
 #### Run functions #################
 
+# Notes :
+# Write conditions as 'if elsefi else fi' to avoid returning 1 by accident
+# Sleep delays may be necessary to avoid the script locking up when processing multiple files
+
 ###################################################################
 
 
@@ -185,32 +206,34 @@ help () {
 
 run_reencode_dnxhd () {
 
+    sleep 0.8
+
+	if [ "${overwrite}" = true ]; then cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"; fi
+
 	if [ "${overwrite}" = true ]; then
-		sleep 0.8
-		cp "${input}" "/tmp/${base}_TEMP.mov"
-		rm "${input}"
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${vprofile}" -pix_fmt "${vpixfmt}" -c:a copy "${dir}/${base}.mov" 2>&1 )
-		rm -f "/tmp/${base}_TEMP.mov"
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.mov" -c:v "${vcodec}" -profile:v "${vprofile}" -pix_fmt "${vpixfmt}" -c:a copy "${dir}/${base}.mov" 2>&1 );
 	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${vprofile}" -pix_fmt "${vpixfmt}" -c:a copy "${dir}/${base}${file_converted}.mov" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -profile:v "${vprofile}" -pix_fmt "${vpixfmt}" -c:a copy "${dir}/${base}${file_converted}.mov" 2>&1);
 	fi
+
+	if [ "${overwrite}" = true ]; then rm -f "/tmp/${base}_TEMP.mov"; fi
 
 	return $?
 }
 
 run_reencode_prores () {
 
+    sleep 0.8
+
+	if [ "${overwrite}" = true ]; then cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"; fi
+
 	if [ "${overwrite}" = true ]; then
-		sleep 0.8
-		cp "${input}" "/tmp/${base}_TEMP.mov"
-		rm "${input}"
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.mov" -c:v "${vcodec}"$opt_profile -c:a copy "${input}" 2>&1 )
-		rm -f "/tmp/${base}_TEMP.mov"
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.mov" -c:v "${vcodec}"$opt_profile -c:a copy "${input}" 2>&1 );
 	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}"${opt_profile} -c:a copy "${dir}/${base}${file_converted}.mov" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}"${opt_profile} -c:a copy "${dir}/${base}${file_converted}.mov" 2>&1);
 	fi
+
+	if [ "${overwrite}" = true ]; then rm -f "/tmp/${base}_TEMP.mov"; fi
 
 	return $?
 }
@@ -219,34 +242,34 @@ run_reencode_prores () {
 
 run_reencode_h264 () {
 
-	if [ "${overwrite}" = true ];  then
-		sleep 0.8
-		cp "${input}" "/tmp/${base}_TEMP.${ext}"
-		rm "${input}"
+	sleep 0.8
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${input}" 2>&1)
-		rm "/tmp/${base}_TEMP.${ext}"
+	if [ "${overwrite}" = true ]; then cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"; fi
+
+	if [ "${overwrite}" = true ];  then
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${input}" 2>&1);
 	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}${file_converted}.${ext}" 2>&1);
 	fi
+
+	if [ "${overwrite}" = true ]; then rm -f "/tmp/${base}_TEMP.${ext}"; fi
 
 	return $?
 }
 
 run_reencode_hevc () {
 
-	if [ "${overwrite}" = true ];  then
-		sleep 0.8
-		cp "${input}" "/tmp/${base}_TEMP.${ext}"
-		rm "${input}"
+    sleep 0.8
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${input}" 2>&1)
-		rm "/tmp/${base}_TEMP.${ext}"
+	if [ "${overwrite}" = true ]; then cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"; fi
+
+	if [ "${overwrite}" = true ];  then
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${input}" 2>&1);
 	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pix_fmt yuv420p -c:v "${vcodec}" -c:a copy${opt_bitrate} -preset "${vquality}" "${dir}/${base}${file_converted}.${ext}" 2>&1);
 	fi
+
+	if [ "${overwrite}" = true ]; then rm -f "/tmp/${base}_TEMP.${ext}"; fi
 
 	return $?
 }
@@ -260,9 +283,9 @@ run_reencode_vp9 () {
 		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
 
 		if [ "${overwrite}" = true ];  then
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1);
+		    < /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1);
 		else
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" "${input}" 2>&1);
+		    < /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" "${input}" 2>&1);
 		fi
 
 		[ "${overwrite}" = true ] && rm "/tmp/${base}_TEMP.${ext}"
@@ -270,12 +293,13 @@ run_reencode_vp9 () {
 	elif [ "${vcodec}" = "vp9_qsv" ];  then
 
 		sleep 0.8
+
 		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
 
         if [ "${overwrite}" = true ];  then
-        < /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" "/tmp/${base}_TEMP.webm" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${input}" 2>&1);
+            < /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" "/tmp/${base}_TEMP.webm" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${input}" 2>&1);
         else
-        msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${dir}/${base}${file_converted}.webm" 2>&1);
+            msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${dir}/${base}${file_converted}.webm" 2>&1);
         fi
 
 		[ "${overwrite}" = true ] && rm "/tmp/${base}_TEMP.${ext}"
@@ -364,6 +388,8 @@ run_horizontal_disassemble () {
 	mkdir "${dir}/${base}${file_horizontal_cut}"
 	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/${base}${file_horizontal_cut}/${base}_%03d.${value}" 2>&1)
 
+    if [ "${overwrite}" = true ]; then rm "${input}"; fi
+
 	return $?
 }
 
@@ -378,6 +404,8 @@ run_vertical_disassemble () {
 
 	if [ ! -z "${detect_vcodec}" ]; then msg=$("${ffmpeg_bin}" -i "${input}" -map 0:v "${dir}/${base}${file_vertical_cut}/${base}${file_vertical_cut_v}.${vext}" 2>&1); fi
 	if [ ! -z "${detect_acodec}" ]; then msg=$("${ffmpeg_bin}" -i "${input}" -map 0:a "${dir}/${base}${file_vertical_cut}/${base}${file_vertical_cut_a}.${aext}" 2>&1); fi
+
+	if [ "${overwrite}" = true ]; then rm "${input}"; fi
 
 	return $?
 }
@@ -424,7 +452,7 @@ run_restore () {
 		vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
 		vfps_multiplied=$((${vfps} * ${multiplicator}))
 
-		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}" && rm "/tmp/${base}_TEMP.${ext}"
+		if [ "${overwrite}" = true ]; then cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}" && rm "/tmp/${base}_TEMP.${ext}"; fi
 
 		if [ "${overwrite}" = true ]; then
 		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -filter:v minterpolate -r "${vfps_multiplied}" "${input}" 2>&1 );
@@ -446,18 +474,23 @@ run_restore () {
 
 run_add_music () {
 
-msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" -filter_complex filter_complex "[0:v]trim=start=0[out0];[0:a]atrim=start=0[out1];[out1][1:a]sidechaingate=level_in=1:mode=downward:threshold=0.125:ratio=2:attack=20:release=250:makeup=1:knee=2.828427125:detection=rms[out2]" -map "[out0]" -map "[out2]" "${dir}/${base}_music_added.${ext}" 2>&1 )
+    sleep 0.8
 
-msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" -filter_complex "[0:v]trim=start=0[out0];[0:a]atrim=start=0[out1];[out1][1:a]amix=inputs=2:duration=longest:dropout_transition=2:weights=1 1:normalize=1[out2]" -map "[out0]" -map "[out2]" "${dir}/${base}_music_added.${ext}" 2>&1 )
+    # msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" -filter_complex filter_complex \
+    # "[0:v]trim=start=0[out0];[0:a]atrim=start=0[out1];[out1][1:a]sidechaingate=level_in=1:mode=downward:threshold=0.125:ratio=2:attack=20:release=250:makeup=1:knee=2.828427125:detection=rms[out2]" \
+    # -map "[out0]" -map "[out2]" "${dir}/${base}_music_added.${ext}" 2>&1 )
 
+    # msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" -filter_complex \
+    # "[0:v]trim=start=0[out0];[0:a]atrim=start=0[out1];[out1][1:a]amix=inputs=2:duration=longest:dropout_transition=2:weights=1 1:normalize=1[out2]" \
+    # -map "[out0]" -map "[out2]" "${dir}/${base}_music_added.${ext}" 2>&1 )
+
+    msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" \
+    -map 0:v -map 1:a "${dir}/${base}_music_added.${ext}" 2>&1 )
+
+    if [ "${overwrite}" = true ]; then rm "${input}"; fi
+
+    return $?
 }
-
-#run_add_watermark () {
-#
-#
-#}
-
-######################################## Run filters
 
 run_sepia () {
 
@@ -843,7 +876,7 @@ common_ncnn_start () {
 	ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "/tmp/${base}audio_TEMP.${aext}"
 	ffmpeg -i "${dir}/${base}.${ext}" "/tmp/${base}_input_TEMP/frame_%08d.png"
 
-	[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
+	if [ "${overwrite}" = true ]; then cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"; fi
 }
 
 common_ncnn_end () {
@@ -858,8 +891,8 @@ common_ncnn_end () {
 	# Wipe
 	rm -r "/tmp/${base}_input_TEMP"
 	rm -r "/tmp/${base}_output_TEMP"
-	rm "/tmp/${base}_TEMP.${ext}"
-	if [ "${detect_acodec}" != "" ]; then rm "/tmp/${base}audio_TEMP.${aext}"; fi
+	if [ "${overwrite}" = true ]; then rm "/tmp/${base}_TEMP.${ext}"; fi
+	if [ "${detect_acodec}" != "" ]; then rm -f "/tmp/${base}audio_TEMP.${aext}"; fi
 }
 
 
@@ -1555,9 +1588,6 @@ set_add_music () {
 
 	add_input=$("${kdialog_bin}" --title "${!msg_title}" --icon document-open --getopenfilename " " ) || \
 		{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
-
-	add_input_name="${add_input##*/}"
-	add_input_base="${add_input%.*}"
 
 	manage_input_separately "${@}"
 }
