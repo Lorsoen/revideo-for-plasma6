@@ -33,7 +33,7 @@ new_line="
 "
 
 en_US () {
-	### Messages
+	### Common
 	msg_common_software_not_found="Software not found"
 	msg_common_ffmpeg_not_found="Software Ffmpeg not found! Please, install it."
 	msg_common_rife_not_found="Software RIFE not found! Please, install it."
@@ -44,41 +44,45 @@ en_US () {
 	msg_common_abort="Operation interrupted by the user."
 	msg_common_file_not_found="File \"${name}\" not found!"
 	msg_common_name_error="The file name \"${name}\" does not match a recognized format for a date.${new_line}${new_line}The name must be of the type: YYYY-MM-DD_HHMMSS.jpg"
-	msg_common_start="Initialising
-	... "
+	msg_common_start="Initialising... "
 	msg_common_progress="Processing file $processed of $quantity ($(basename "${input}"))"
 	msg_common_finish_ok="Done."
 	msg_common_finish_error="An error has occurred."
+	msg_common_invalid_value="An invalid value was entered. Please, try again."
 
+
+	### Actions
+
+	### Compress
 	msg_compress_title="Video compression with quality \"${value}\""
 	msg_compress_quality_input_text="Type the quality:"
 	msg_compress_finish_title="Compression of \"${name}\""
 
+	### Rotate
 	msg_rotate_title="Rotate file with angle of \"${value}\""
 	msg_rotate_angle_input_text="Enter the desired rotation angle:"
 	msg_rotate_finish_title="Rotation \"${name}\""
 
+	### Resize
 	msg_resize_title="Resize file with \"${profile}\" method:"
-	msg_resize_profile_input_text="Choose the way that the video(s) should be resized (\"${def_profile}\" by default):${new_line}"
+	msg_resize_profile_input_text="Choose which resizing method should be used (\"${def_profile}\" by default):${new_line}"
 	msg_resize_finish_title="Resizing \"${name}\""
 
+    ### Interpolate
 	msg_interpolate_title="Interpolating with \"${model}\" by ${multiplicator}"
 	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count (2 by default):"
-	msg_gpu_interpolate_input_text="One or multiple compatible GPU(s) were detected.${new_line}Choose a model for interpolation ($def_model by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU, which is slow!${new_line}"
+	msg_gpu_interpolate_input_text="${blk_gpu_available}Choose a model for interpolation ($def_model by default).${new_line}${new_line}'Minterpolate' runs exclusively on CPU, which is slow!${new_line}"
 	msg_interpolate_finish_title="Interpolation of \"${name}\" by ${multiplicator}"
 
-	msg_interpolate_title="Interpolating with \"${model}\" by \"${multiplicator}\""
-	msg_interpolate_multiplicator_input_text="Choose the number by which you want to${new_line}multiply the video(s)'s frame count ('${def_multi}' by default):"
-	msg_gpu_interpolate_input_text="${att_gpu_available}Choose a model for interpolation ('${def_model}' by default).${new_line}$att_gpu_available_interpolate"
-	msg_interpolate_finish_title="Interpolation of \"${name}\" by \"${multiplicator}\""
-
+    ### Restore
 	msg_restore_title="Restoring by doing \"${subaction}\" with \"${title_model}\""
-	msg_subaction_input_text="${att_gpu_available}What do you want to do? ('${def_subaction}' by default)"
-	msg_gpu_restore_input_text="Choose a model for restoring ('${def_model}' by default).${new_line}${att_gpu_available_restore}"
+	msg_subaction_input_text="${blk_gpu_available}What do you want to do? ('${def_subaction}' by default)"
+	msg_restore_gpu_input_text="Choose a model for restoring ('${def_model}' by default).${new_line}'SRMD', 'RealSR' and 'Real-ESRGAN' benefits from your GPU but may be more inconsistent depending of the model."
 	msg_restore_denoise_input_text="Enter a value for denoise intensity, $min_denoise to $max_denoise${new_line}($def_denoise by default).${new_line}Lower equals lower quality but longer process time.${new_line}${new_line}Tuning it may be necessary depending of the noise quantity.${new_line}"
 	msg_restore_upscale_input_text="Choose the number by which you want to${new_line}upscale the video(s)'s resolution ('${def_multi}' by default):"
 	msg_restore_finish_title="Restauration of \"${name}\" with \"${model}\""
 
+    ### Reencode
 	msg_reencode_h264_title="Reencoding to h264"
 	msg_reencode_h264_finish_title="Reencode \"${name}\" to h264"
 
@@ -94,13 +98,11 @@ en_US () {
 	msg_reencode_dnxhd_title="Reencoding to DNxHD"
 	msg_reencode_dnxhd_finish_title="Reencode \"${name}\" to DNxHD"
 
-
-
 	msg_dnxhd_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
 	msg_prores_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}${new_line}When in doubt, choose 'Auto'.${new_line}"
 	msg_bitrate_encode_input_text="Enter a value for bitrate limit, $min_bitrate to $max_bitrate ($def_bitrate by default).${new_line}Lower equals better quality but bigger file.${new_line}${new_line}Tuning it may be necessary for videos with a lot of movement.${new_line}"
 	msg_quality_encode_input_text="Choose a speed for compression ('${def_quality}' by default).${new_line}Slower equals better quality but slower encoding / decoding time.${new_line}"
-	msg_gpu_encode_input_text="${att_gpu_available}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
+	msg_gpu_encode_input_text="${blk_gpu_available}Choose an encoding method ($def_encoder by default).${new_line}${new_line}GPU encoding may be faster depending of it's performance.${new_line}It will also free your computer for other tasks.${new_line}"
 	msg_multithread_input_text="Do you want to run in multithread ?${new_line}${new_line}This will completly mobilise your CPU, accelerating${new_line}the encoding speed at the cost of your computer's reactivity.${new_line}${new_line}Recommended if you're not going to use it during operation.${new_line}"
 
 	msg_pcm_profile_encode_input_text="Choose a profile, depending of the media(s)'s characteristics ('$def_profile' by default).${new_line}"
@@ -108,32 +110,32 @@ en_US () {
 	msg_codec_encode_input_text="Enter the desired codec:"
 	msg_profile_encode_input_text="Enter the desired profile:"
 
-	msg_invalid_value="An invalid value was entered. Please, try again."
+
 
 	msg_afallback_encode_input_text="'${base}.${ext}''s audio codec is not known from revideo.${new_line}It will fallback to either a lossless codec (PCM) or a lossy one (Opus)${new_line}($def_afallback by default)${new_line}${new_line}Choose one:${new_line}"
 	msg_vfallback_encode_input_text="'${base}.${ext}''s video codec is not known from revideo.${new_line}It will fallback to either a lossless codec (ProRes) or a lossy one (h264)${new_line}($def_vfallback by default)${new_line}${new_line}Choose one:${new_line}"
 
-	### Set Attachments
-	att_srmd_list="(Best for Real-Life)"
-	att_realsr_list="(Best for Real-Life)"
-	att_realesrgan_list="(Best for Animation)"
 
-	loc_lossless="Lossless"; loc_lossy="Lossy"
+	### Building blocks
+	blk_srmd_list="(Best for Real-Life)"
+	blk_realsr_list="(Best for Real-Life)"
+	blk_realesrgan_list="(Best for Animation)"
+    blk_gpu_available="One or multiple compatible GPU(s) were detected.${new_line}"
+
+
+	### Lists
 	list_restore_denoise="Denoise"; list_restore_upscale="Upscale" list_restore_all="Combine the two's"
 	list_nlmeans="Nlmeans (Slower, more precise)" list_atadenoiser="Atadenoiser (Faster, less precise)"
 
 	list_pcm_s16be="PCM 16 Bits"; list_pcm_s24be="PCM 24 Bits"; list_pcm_f32be="PCM Floating 32 Bits"
+
+	list_lossless="Lossless"; list_lossy="Lossy"
 	list_resize_stretch="Stretch" list_resize_fill="Fill" list_resize_bars="Black Bars"
 
-	if [ "${gpu_list}" != "CPU" ]; then
-	att_gpu_available="One or multiple compatible GPU(s) were detected.${new_line}"
-	att_gpu_available_interpolate="${new_line}'Minterpolate' runs exclusively on CPU but may be more accurate.${new_line}"
-	att_gpu_available_restore="${new_line}'SRMD', 'RealSR' and 'Real-ESRGAN' benefits from your GPU but may be less accurate.${new_line}"
-	fi
 
-    ### Conditionnal
-    file_en_US () {
-        ### File Attachments
+    ### File Attachments
+    file_horizontal_cut="_frames"; file_vertical_cut="_stripped"; file_vertical_cut_v="_video"; file_vertical_cut_a="_audio"
+    lock_en_US () {
 		file_converted="_converted"; file_rotated="_rotated"; file_resized="_resized"
 		file_interpolated="_interpolated"; file_denoised="_denoised"; file_upscaled="_denoised"; file_restore_all="_upscaled and denoised"
 		file_sepia="_sepia"; file_gray="_gray"
@@ -142,14 +144,13 @@ en_US () {
 }
 
 
-
 load_strings () {
 	## Load localized strings AFTER english strings
 	## - if localized strings not found use english for default
 	## - if localized strings are incomplete use english only fot missing strings :-)
-	## - file_en_US (file name attachments) separated and managed by overwrite prompt
+	## - lock_en_US separated and managed by overwrite
 	en_US && [ "${lang}" != "en_US" ] && ${lang}
-	[ "${overwrite}" = false ] && file_en_US && [ "${lang}" != "en_US" ] && file_${lang}
+	[ "${overwrite}" = false ] && lock_en_US && [ "${lang}" != "en_US" ] && file_${lang}
 }
 
 lang=${LANG//.?*/}
@@ -253,33 +254,32 @@ run_reencode_hevc () {
 run_reencode_vp9 () {
 
 	if [ "${vcodec}" = "libvpx-vp9" ];  then
+
+		sleep 0.8
+
+		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
+
 		if [ "${overwrite}" = true ];  then
-			sleep 0.8
-			cp "${input}" "/tmp/${base}_TEMP.webm"
-			rm "${input}"
-
-
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1)
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" "${input}" 2>&1)
-			rm "/tmp/${base}_TEMP.webm"
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -f null /dev/null && \ 2>&1);
 		else
-			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 1 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -an -f null /dev/null && \ 2>&1)
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -cpu-used 4 -c:v "${vcodec}"${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" -c:a libopus "${dir}/${base}${file_converted}.webm" 2>&1)
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -pass 2 -b:v 0 -pix_fmt yuv420p10le -c:v "${vcodec}" -c:a copy${opt_bitrate} -quality "${vquality}" -row-mt "${multithread}" "${input}" 2>&1);
 		fi
+
+		[ "${overwrite}" = true ] && rm "/tmp/${base}_TEMP.${ext}"
+
 	elif [ "${vcodec}" = "vp9_qsv" ];  then
-		if [ "${overwrite}" = true ];  then
-			sleep 0.8
-			cp "${input}" "/tmp/${base}_TEMP.webm"
-			rm "${input}"
 
+		sleep 0.8
+		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" "/tmp/${base}_TEMP.webm" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${input}" 2>&1)
-			rm "/tmp/${base}_TEMP.webm"
-		else
-			sleep 0.8
-			msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${dir}/${base}${file_converted}.webm" 2>&1)
-		fi
+        if [ "${overwrite}" = true ];  then
+        < /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" "/tmp/${base}_TEMP.webm" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${input}" 2>&1);
+        else
+        msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v "${vcodec}" -preset "${vquality}" -c:a libopus "${dir}/${base}${file_converted}.webm" 2>&1);
+        fi
+
+		[ "${overwrite}" = true ] && rm "/tmp/${base}_TEMP.${ext}"
+
 	fi
 
 	return $?
@@ -289,14 +289,16 @@ run_reencode_audio () {
 
 	if [ "${overwrite}" = true ];  then
 		sleep 0.8
-		cp "${input}" "/tmp/${base}_TEMP.${ext}"
-		rm "${input}"
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -c:v copy -c:a "${acodec}" "${input}" 2>&1)
-		rm "/tmp/${base}_TEMP.${ext}"
-	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a "${acodec}" "${dir}/${base}${file_converted}.${ext}" 2>&1)
+		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
+
+		if [ "${overwrite}" = true ];  then
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -c:v copy -c:a "${acodec}" "${input}" 2>&1);
+		else
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a "${acodec}" "${dir}/${base}${file_converted}.${ext}" 2>&1);
+		fi
+
+		[ "${overwrite}" = true ] && rm "/tmp/${base}_TEMP.${ext}"
 	fi
 
 	return $?
@@ -306,8 +308,13 @@ run_reencode_audio () {
 
 run_resize () {
 
-	width=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0:s=x "${dir}/${base}.${ext}" 2>&1); value=$(echo "${value}" | sed "s~OG_W~$width~g" 2>&1)
-	height=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0:s=x "${dir}/${base}.${ext}" 2>&1); value=$(echo "${value}" | sed "s~OG_H~$height~g" 2>&1)
+	width=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0:s=x "${dir}/${base}.${ext}" 2>&1)
+	value=$(echo "${value}" | sed "s~OG_W~$width~g" 2>&1)
+
+	height=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0:s=x "${dir}/${base}.${ext}" 2>&1)
+	value=$(echo "${value}" | sed "s~OG_H~$height~g" 2>&1)
+
+    sleep 0.8
 
 	if [ "${profile}" = "${list_resize_stretch}" ]; then
 		opt_resize=",setsar=1"
@@ -317,17 +324,16 @@ run_resize () {
 		opt_resize=":force_original_aspect_ratio=decrease,pad=$value:-1:-1:color=black"
 	fi
 
-	if [ "${overwrite}" = true ];  then
-		sleep 0.8
-		cp "${input}" "/tmp/${base}_TEMP.${ext}"
-		rm "${input}"
+    [ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
 
-		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -vf "scale=$value$opt_resize" "${input}" 2>&1)
-		rm "/tmp/${base}_TEMP.${ext}"
+
+	if [ "${overwrite}" = true ];  then
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -vf "scale=$value$opt_resize" "${input}" 2>&1);
 	else
-		sleep 0.8
-		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vf "scale=$value$opt_resize" "${dir}/${base}${file_resized}.${ext}" 2>&1)
+		msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -vf "scale=$value$opt_resize" "${dir}/${base}${file_resized}.${ext}" 2>&1);
 	fi
+
+	[ "${overwrite}" = true ] && rm "/tmp/${base}_TEMP.${ext}"
 
 	return $?
 
@@ -337,11 +343,11 @@ run_resize () {
 
 run_rewrap () {
 
+    sleep 0.8
+
 	if [ "${overwrite}" = true ] && [ "${ext}" = "${format}" ]; then
-		sleep 0.8
 		msg=$("${ffmpeg_bin}" -i "${input}" -c copy -map 0 "${input}.${format}" 2>&1)
 	else
-		sleep 0.8
 		msg=$("${ffmpeg_bin}" -i "${input}" -c copy -map 0 "${dir}/${base}.${format}" 2>&1)
 	fi
 
@@ -353,8 +359,25 @@ run_rewrap () {
 
 run_horizontal_disassemble () {
 
-	mkdir "${dir}/${base}_frames"
-	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/${base}_frames/${base}_%03d.${value}" 2>&1)
+    sleep 0.8
+
+	mkdir "${dir}/${base}${file_horizontal_cut}"
+	msg=$("${ffmpeg_bin}" -i "${input}" "${dir}/${base}${file_horizontal_cut}/${base}_%03d.${value}" 2>&1)
+
+	return $?
+}
+
+run_vertical_disassemble () {
+
+    sleep 0.8
+
+    detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: ); [[ ${detect_vcodec} = *"Video:"* ]] && detect_video_codec
+	detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: ); [[ ${detect_acodec} = *"Audio:"* ]] && detect_audio_codec
+
+    mkdir "${dir}/${base}${file_vertical_cut}"
+
+	if [ ! -z "${detect_vcodec}" ]; then msg=$("${ffmpeg_bin}" -i "${input}" -map 0:v "${dir}/${base}${file_vertical_cut}/${base}${file_vertical_cut_v}.${vext}" 2>&1); fi
+	if [ ! -z "${detect_acodec}" ]; then msg=$("${ffmpeg_bin}" -i "${input}" -map 0:a "${dir}/${base}${file_vertical_cut}/${base}${file_vertical_cut_a}.${aext}" 2>&1); fi
 
 	return $?
 }
@@ -365,131 +388,57 @@ run_interpolate () {
 
 	if [ "${value}" = "minterpolate" ]; then
 
-		if [ "${overwrite}" = true ];  then
-			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-			vfps_multiplied=$((${vfps} * ${multiplicator}))
+		vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+		vfps_multiplied=$((${vfps} * ${multiplicator}))
 
-			cp "${input}" "/tmp/${base}_TEMP.${ext}"
-			rm "${input}"
+		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}" && rm "/tmp/${base}_TEMP.${ext}"
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -filter:v minterpolate -r "${vfps_multiplied}" "${input}" 2>&1 )
-
-			rm "/tmp/${base}_TEMP.${ext}"
-
+		if [ "${overwrite}" = true ]; then
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -filter:v minterpolate -r "${vfps_multiplied}" "${input}" 2>&1 );
 		else
-			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-			vfps_multiplied=$((${vfps} * ${multiplicator}))
-
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${vfps_multiplied}" "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${vfps_multiplied}" "${dir}/${base}${file_interpolated}.${ext}" 2>&1 );
 		fi
+
+		vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+		vfps_multiplied=$((${vfps} * ${multiplicator}))
 
 	else
 
-		if [ "${overwrite}" = true ];  then
+		common_ncnn_start
 
-			common_ncnn_start
+		"${value}" -m "/usr/share/rife-ncnn-vulkan/rife-v4.25-heavy" -n $[ ${vfps_total} * ${multiplicator} ] -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
 
-			"${value}" -m "/usr/share/rife-ncnn-vulkan/rife-v4.25-heavy" -n $[ ${vfps_total} * ${multiplicator} ] -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
-
-            common_ncnn_end
-
-		else
-
-			common_ncnn_start
-
-			"${value}" -m "/usr/share/rife-ncnn-vulkan/rife-v4.25-heavy" -n $[ ${vfps_total} * ${multiplicator} ] -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
-
-			common_ncnn_end
-
-		fi
+		common_ncnn_end
 
 	fi
 	return $?
 }
 
 run_restore () {
-    printf "Pouic!"
+
 	base="${base}"
 
 	if [ "${value}" = "nlmeans" ] || [ "${value}" = "atadenoiser" ]; then
 
-		if [ "${overwrite}" = true ];  then
-			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-			vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
-			vfps_multiplied=$((${vfps} * ${multiplicator}))
+		vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
+		vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
+		vfps_multiplied=$((${vfps} * ${multiplicator}))
 
-			cp "${input}" "/tmp/${base}_TEMP.${ext}"
-			rm "${input}"
+		[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}" && rm "/tmp/${base}_TEMP.${ext}"
 
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -filter:v minterpolate -r "${vfps_multiplied}" "${input}" 2>&1 )
-
-			rm "/tmp/${base}_TEMP.${ext}"
-
+		if [ "${overwrite}" = true ]; then
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "/tmp/${base}_TEMP.${ext}" -filter:v minterpolate -r "${vfps_multiplied}" "${input}" 2>&1 );
 		else
-			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-			vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
-			vfps_multiplied=$((${vfps} * ${multiplicator}))
-
-			< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${vfps_multiplied}" "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
+		< /dev/null msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -filter:v minterpolate -r "${vfps_multiplied}" "${dir}/${base}${file_interpolated}.${ext}" 2>&1 );
 		fi
 
 	else
 
-		if [ "${overwrite}" = true ];  then
-			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-			vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
-			vfps_multiplied=$((${vfps} * ${multiplicator}))
-			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: )
-			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: )
+		common_ncnn_start
 
-			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
-			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
+		"${value}" -s ${multiplicator} -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP$opt_restore"
 
-			mkdir "/tmp/${base}_input_TEMP"
-			mkdir "/tmp/${base}_output_TEMP"
-
-			ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "/tmp/${base}audio_TEMP.${aext}"
-			ffmpeg -i "${dir}/${base}.${ext}" "/tmp/${base}_input_TEMP/frame_%08d.png"
-
-			cp "${input}" "/tmp/${base}_TEMP.${ext}"
-			rm "${input}"
-			"${value}" -s ${multiplicator} -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP$opt_restore"
-			if [ $acodec != "" ]; then
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_%08d.${aext}"$opt_video$opt_audio "${dir}/${base}.${vext}" 2>&1 )
-			else
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" $opt_video "${dir}/${base}.${vext}" 2>&1 )
-			fi
-			rm "/tmp/${base}_TEMP.${ext}"
-
-			rm -r "/tmp/${base}_input_TEMP"
-			rm -r "/tmp/${base}_output_TEMP"
-			rm "/tmp/${base}audio_TEMP.${aext}"
-		else
-			vfps=$(ffmpeg -i "${dir}/${base}.${ext}" 2>&1 | sed -n 's/.*, \(.*\) fp.*/\1/p')
-			vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
-			vfps_multiplied=$((${vfps} * ${multiplicator}))
-			detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: )
-			detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: )
-
-			if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
-			if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
-
-			mkdir "/tmp/${base}_input_TEMP"
-			mkdir "/tmp/${base}_output_TEMP"
-
-			ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "/tmp/${base}audio_TEMP.${aext}"
-			ffmpeg -i "${dir}/${base}.${ext}" "/tmp/${base}_input_TEMP/frame_%08d.png"
-
-			"${value}" -s ${multiplicator} -i "/tmp/${base}_input_TEMP" -o "/tmp/${base}_output_TEMP"
-			if [ $acodec != "" ]; then
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png" -i "/tmp/${base}audio_TEMP.${aext}"$opt_video$opt_audio "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
-			else
-				msg=$("${ffmpeg_bin}" -framerate "${vfps_multiplied}" -i "/tmp/${base}_output_TEMP/%08d.png"$opt_video "${dir}/${base}${file_interpolated}.${ext}" 2>&1 )
-			fi
-			rm -r "/tmp/${base}_input_TEMP"
-			rm -r "/tmp/${base}_output_TEMP"
-			rm "/tmp/${base}audio_TEMP.${aext}"
-		fi
+		common_ncnn_end
 
 	fi
 	return $?
@@ -512,32 +461,30 @@ msg=$("${ffmpeg_bin}" -i "${input}" -i "${add_input}" -filter_complex "[0:v]trim
 
 run_sepia () {
 
+    [ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
+
 	if [ "${overwrite}" = true ];  then
-		cp "${input}" "${dir}/${base}_TEMP.${ext}"
-		rm "${input}"
-
 		msg=$("${ffmpeg_bin}" -i "${dir}/${base}_TEMP.${ext}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${input}" 2>&1)
-
-		rm "${dir}/${base}_TEMP.${ext}"
 	else
 		msg=$("${ffmpeg_bin}" -i "${input}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${dir}/${base}${file_sepia}.${ext}" 2>&1)
 	fi
+
+	[ "${overwrite}" = true ] && rm "${dir}/${base}_TEMP.${ext}"
 
 	return $?
 }
 
 run_gray () {
 
+    [ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
+
 	if [ "${overwrite}" = true ];  then
-		cp "${input}" "${dir}/${base}_TEMP.${ext}"
-		rm "${input}"
-
 		msg=$("${ffmpeg_bin}" -i "${dir}/${base}_TEMP.${ext}" -filter_complex colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131 -c:a copy "${input}" 2>&1)
-
-		rm "${dir}/${base}_TEMP.${ext}"
 	else
 		msg=$("${ffmpeg_bin}" -i "${input}" -vf extractplanes=y -c:a copy "${dir}/${base}${file_gray}.${ext}" 2>&1)
 	fi
+
+	[ "${overwrite}" = true ] && rm "${dir}/${base}_TEMP.${ext}"
 
 	return $?
 }
@@ -545,31 +492,31 @@ run_gray () {
 ######################################## Run Rotate
 
 run_overturn () {
+
+    [ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
+
 	if [ "${overwrite}" = true ];  then
-		cp "${input}" "${dir}/${base}_TEMP.${ext}"
-		rm "${input}"
-
 		msg=$("${ffmpeg_bin}" -i "${dir}/${base}_TEMP.${ext}" -filter:v "${value}" -c:a copy "${input}" 2>&1)
-
-		rm "${dir}/${base}_TEMP.${ext}"
 	else
 		msg=$("${ffmpeg_bin}" -i "${input}" -filter:v "${value}" -c:a copy "${dir}/${base}${file_rotated}.${ext}" 2>&1)
 	fi
+
+	[ "${overwrite}" = true ] && rm "${dir}/${base}_TEMP.${ext}"
 
 	return $?
 }
 
 run_rotate () {
+
+    [ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
+
 	if [ "${overwrite}" = true ];  then
-		cp "${input}" "${dir}/${base}_TEMP.${ext}"
-		rm "${input}"
-
 		msg=$("${ffmpeg_bin}" -display_rotation "${angle}" -i "${dir}/${base}_TEMP.${ext}" -c:a copy "${input}" 2>&1)
-
-		rm "${dir}/${base}_TEMP.${ext}"
 	else
 		msg=$("${ffmpeg_bin}" -display_rotation "${angle}" -i "${input}" -c:a copy "${dir}/${base}${file_rotated}.${ext}" 2>&1)
 	fi
+
+	[ "${overwrite}" = true ] && rm "${dir}/${base}_TEMP.${ext}"
 
 	return $?
 }
@@ -644,9 +591,9 @@ detect_gpu_vp9 () {
 
 detect_video_codec () {
 
-	def_vfallback=$loc_lossless
+	def_vfallback=$list_lossless
 
-	vfallback_list=("$loc_lossless $loc_lossy")
+	vfallback_list=("$list_lossless $list_lossy")
 
 	## Prores
 	if [[ ${detect_vcodec} = *"prores"* ]]; then
@@ -728,7 +675,7 @@ detect_video_codec () {
 		#fi
 
 	else
-		load_strings   # Hack ?
+		load_strings
 
 		vcodec=""; vprofile=""; vquality=""; vbitrate=""
 
@@ -737,7 +684,7 @@ detect_video_codec () {
 		if [ "${fallback}" = "" ]; then fallback="${def_vfallback}"
 		fi
 
-		if [ $vfallback=$loc_lossless ]; then
+		if [ $vfallback=$list_lossless ]; then
 			if [ "${overwrite}"=true ]; then
 				sleep 0.8
 				cp "${input}" "/tmp/${base}_TEMP.${ext}"
@@ -751,7 +698,7 @@ detect_video_codec () {
 				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v prores -c:a copy "${dir}/${base}${file_converted}.${ext}" 2>&1)
 				base="${base}${file_converted}"
 			fi
-		elif [ $vfallback=$loc_lossy ]; then
+		elif [ $vfallback=$list_lossy ]; then
 
 			if [ $def_encoder="Nvidia" ]; then
 				vcodec="h264_nvenc"; vquality=p4
@@ -781,9 +728,9 @@ detect_video_codec () {
 
 detect_audio_codec () {
 
-	def_afallback=${loc_lossless}
+	def_afallback=${list_lossless}
 
-	afallback_list=("$loc_lossless $loc_lossy")
+	afallback_list=("$list_lossless $list_lossy")
 
 	## PCM
 	if [[ ${detect_acodec} = *"pcm"* ]]; then
@@ -820,7 +767,7 @@ detect_audio_codec () {
 		if [ "${afallback}" = "" ]; then afallback="${def_afallback}"
 		fi
 
-		if [ "${afallback}" = "${loc_lossless}" ]; then
+		if [ "${afallback}" = "${list_lossless}" ]; then
 			acodec="pcm"; aext="waw"
 			if [ "${overwrite}" = true ]; then
 				sleep 0.8
@@ -835,7 +782,7 @@ detect_audio_codec () {
 				msg=$("${ffmpeg_bin}" -nostdin -i "${input}" -c:v copy -c:a pcm_s16le "${dir}/${base}${file_converted}.${ext}" 2>&1)
 				base="${base}${file_converted}"
 			fi
-		elif [ "${afallback}" = "${loc_lossy}" ]; then
+		elif [ "${afallback}" = "${list_lossy}" ]; then
 			acodec="opus"; aext="ogg"
 			if [ "${overwrite}" = true ]; then
 				sleep 2
@@ -887,17 +834,16 @@ common_ncnn_start () {
 	vfps_total=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 "${dir}/${base}.${ext}")
 	vfps_multiplied=$((${vfps} * ${multiplicator}))
 
-	detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: ); if [[ ${detect_acodec} = *"Audio:"* ]]; then detect_audio_codec; fi
-	detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: ); if [[ ${detect_vcodec} = *"Video:"* ]]; then detect_video_codec; fi
+	detect_vcodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Video: ); [[ ${detect_vcodec} = *"Video:"* ]] && detect_video_codec
+	detect_acodec=$(ffprobe -i "${dir}/${base}.${ext}" 2>&1 | grep -i Audio: ); [[ ${detect_acodec} = *"Audio:"* ]] && detect_audio_codec
 
-	# Dissasemble
+	# Disassemble
 	mkdir "/tmp/${base}_input_TEMP"
 	mkdir "/tmp/${base}_output_TEMP"
 	ffmpeg -i "${dir}/${base}.${ext}" -vn -acodec copy "/tmp/${base}audio_TEMP.${aext}"
 	ffmpeg -i "${dir}/${base}.${ext}" "/tmp/${base}_input_TEMP/frame_%08d.png"
 
-	cp "${input}" "/tmp/${base}_TEMP.${ext}"
-	if [ "${overwrite}" = true ];  then rm "${input}"; fi
+	[ "${overwrite}" = true ] && cp "${input}" "/tmp/${base}_TEMP.${ext}" && rm "${input}"
 }
 
 common_ncnn_end () {
@@ -1147,7 +1093,7 @@ set_reencode_h264 () {
 			valid_value="true"
 
 			if [[ ! $vbitrate =~ ^[0-9]+$ ]]; then
-				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_invalid_value}"
 				valid_value="false"
 			fi
 		done
@@ -1221,7 +1167,7 @@ set_reencode_hevc () {
 			valid_value="true"
 
 			if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
-				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_invalid_value}"
 				valid_value="false"
 			fi
 		done
@@ -1292,7 +1238,7 @@ set_reencode_vp9 () {
 			valid_value="true"
 
 			if [[ ! $bitrate =~ ^[0-9]+$ ]] || [ $bitrate -lt $min_bitrate ] || [ $bitrate -gt $max_bitrate ]; then
-				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+				"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_invalid_value}"
 				valid_value="false"
 			fi
 		done
@@ -1458,7 +1404,7 @@ set_restore () {
 
 			load_strings
 
-			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${srmd_list}" "${list_nlmeans}" "${list_atadenoiser}") || \
+			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_gpu_input_text}" "${srmd_list}" "${list_nlmeans}" "${list_atadenoiser}") || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 			if [ "${model}" = "" ]; then model="${def_model}"
 			fi
@@ -1485,10 +1431,9 @@ set_restore () {
 				valid_value="true"
 
 				if [[ ! $denoise =~ ^[0.00-9.99]+$ ]] || [ $denoise -lt $min_denoise ] || [ $denoise -gt $max_denoise ]; then
-					"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_invalid_value}"
+					"${kdialog_bin}" --title --icon configure "${!msg_title}" --error "${msg_common_invalid_value}"
 					valid_value="false"
 				fi
-				printf "$denoise"
 			done
 
 		else
@@ -1496,7 +1441,7 @@ set_restore () {
 
 			load_strings
 
-			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${list_nlmeans}" "${list_atadenoiser}") || \
+			model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_gpu_input_text}" "${list_nlmeans}" "${list_atadenoiser}") || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 			if [ "${model}" = "" ]; then model="${def_model}"
 			fi
@@ -1517,7 +1462,7 @@ set_restore () {
 
 		load_strings
 
-		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${srmd_list}" "${realsr_list}" "${realesrgan_list}") || \
+		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_gpu_input_text}" "${srmd_list}" "${realsr_list}" "${realesrgan_list}") || \
 				{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 			if [ "${model}" = "" ]; then model="${def_model}"
 			fi
@@ -1547,7 +1492,7 @@ set_restore () {
 
 		load_strings
 
-		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_gpu_restore_input_text}" "${realsr_list}" "${realesrgan_list}") || \
+		model=$("${kdialog_bin}" --icon configure --title "${!msg_title}" --combobox "${msg_restore_gpu_input_text}" "${realsr_list}" "${realesrgan_list}") || \
 			{ "${kdialog_bin}" --title "${!msg_title}" --passivepopup "${msg_common_abort}" 5 && exit 2; }
 		if [ "${model}" = "" ]; then model="${def_model}"
 		fi
@@ -1664,8 +1609,13 @@ set_rotate () {
 }
 
 set_horizontal_disassemble () {
-	value="${1}"
-	shift
+    value="${1}"
+
+	manage_input_separately "${@}"
+}
+
+set_vertical_disassemble () {
+    value="${1}"
 
 	manage_input_separately "${@}"
 }
@@ -1709,13 +1659,13 @@ openai_whisper_bin=$($HOME/.local/share/pipx/venvs/openai-whisper)
 [ ! -z "${openai_whisper_bin}" ] && openai_whisper_list="whisper"
 
 srmd_bin=$(which srmd-ncnn-vulkan)
-[ ! -z "${srmd_bin}" ] && srmd_list="SRMD $att_srmd_list"; srmd_list_min="SRMD"
+[ ! -z "${srmd_bin}" ] && srmd_list="SRMD $blk_srmd_list"; srmd_list_min="SRMD"
 
 realsr_bin=$(which realsr-ncnn-vulkan)
-[ ! -z "${realsr_bin}" ] && realsr_list="RealSR $att_realsr_list"; realsr_list_min="RealSR"
+[ ! -z "${realsr_bin}" ] && realsr_list="RealSR $blk_realsr_list"; realsr_list_min="RealSR"
 
 realesrgan_bin=$(which /usr/share/realesrgan-ncnn-vulkan/realesrgan-ncnn-vulkan)
-[ ! -z "${realesrgan_bin}" ] && realesrgan_list="Real-ESRGAN $att_realesrgan_list"; realesrgan_list_min="Real-ESRGAN"
+[ ! -z "${realesrgan_bin}" ] && realesrgan_list="Real-ESRGAN $blk_realesrgan_list"; realesrgan_list_min="Real-ESRGAN"
 
 waifu2x_bin=$(which rife-ncnn-vulkan)
 [ ! -z "${waifu2x_bin}" ] && waifu2x_list="Waifu2x"
