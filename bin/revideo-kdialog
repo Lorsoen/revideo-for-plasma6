@@ -1,5 +1,5 @@
 #! /bin/bash
-set -x
+# set -x # Uncomment for debug
 #
 # 	Part of kde-service-menu-revideo Version 0.3.0
 # 	Copyright (C) 2018-2019 Giuseppe Benigno <giuseppe.benigno(at)gmail.com>
@@ -17,16 +17,19 @@ set -x
 #
 # 	You should have received a copy of the GNU General Public License
 # 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
+#   Credits :
 #
-# Credits :
-# - Script author : Lorsoen
-# - Original reimage script author : Giuseppe Benigno
+#       Script :
+#       - Author : Lorsoen
+#       - Original author : Giuseppe Benigno
 #
-# Special thanks :
-# - Ffmproivsr : https://amiaopensource.github.io/ffmprovisr/#split_audio_video
-# - Ffmpeg Wiki : https://trac.ffmpeg.org/wiki
+#       Translators :
+#       - French : Lorsoen
+#
+#       Special thanks :
+#       - Ffmproivsr : https://amiaopensource.github.io/ffmprovisr/#split_audio_video
+#       - Ffmpeg Wiki : https://trac.ffmpeg.org/wiki
 
 
 
@@ -46,7 +49,19 @@ set -x
 ###################################################################
 
 
-
+## locale strings
+#
+#   Translators! If you wish to add a translation:
+#    - Copy this chunk of code and paste it just below it.
+#    - Change "en_US" to your language code. You can get it :
+#        - From your system's language (copy : ' lang=${LANG//.?*/} && echo $lang ' in a terminal, then copy the result
+#        - On this webpage : https://learn.microsoft.com/en-us/linkedin/shared/references/reference-tables/language-codes
+#    - You're good to go :D  Please test your changes to see if it feels good and works okay.
+#
+#   Note : This script follows strictly your system language. If you want to force another one :
+#    - On the line ' en_US && [ "${lang}" != "en_US" ] && ${lang} ' , remove everything but the first ' en_US ' and change it to your desired language
+#    - You can look for it with Ctrl + F, search ' load_strings ' .
+#
 en_US () {
 	### Common
 	msg_common_software_not_found="Software not found"
@@ -171,7 +186,7 @@ load_strings () {
 }
 
 lang=${LANG//.?*/}
-type load_strings_${lang} &> /dev/null || lang='en_US'
+type ${lang} &> /dev/null || lang='en_US'
 load_strings
 
 ################################################################################

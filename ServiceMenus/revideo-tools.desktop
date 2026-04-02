@@ -18,7 +18,7 @@
 #
 
 [Desktop Entry]
-Actions=disassemble_jpg;disassemble_png;dissasemble_tracks;_SEPARATOR_;add_music;add_watermark;deinterlace;transcript;audio_split;_SEPARATOR_;inter;restore;_SEPARATOR_;sepia;gray
+Actions=1disassemble_jpg;2disassemble_png;3disassemble_tracks;_SEPARATOR_;5inter;6restore;7deinterlace;8transcript;90audio_split;_SEPARATOR_;92add_music;93add_watermark;_SEPARATOR_;95sepia;96gray
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo tools service menu
@@ -32,19 +32,19 @@ TerminalOptions=\s--noclose
 
 ################################################################################
 
-[Desktop Action disassemble_jpg]
+[Desktop Action 1disassemble_jpg]
 Exec=revideo-kdialog horizontal_disassemble jpg %F
 Icon=builder-split-tab-left-symbolic
 Name=Generate JPGs
 Name[fr]=Générer des JPGs
 
-[Desktop Action disassemble_png]
+[Desktop Action 2disassemble_png]
 Exec=revideo-kdialog horizontal_disassemble png %F
 Icon=builder-split-tab-left-symbolic
 Name=Generate PNGs
 Name[fr]=Générer des PNGs
 
-[Desktop Action dissasemble_tracks]
+[Desktop Action 3disassemble_tracks]
 Exec=revideo-kdialog vertical_disassemble %F
 Icon=builder-split-tab-symbolic
 Name=Dissasemble
@@ -52,31 +52,31 @@ Name[fr]=Désassembler
 
 ################################################################################
 
-[Desktop Action transcript]
-Exec=revideo-kdialog transcript %F
-Icon=media-view-subtitles-symbolic
-Name=Transcript
-Name[fr]=Transcripter
-
-[Desktop Action inter]
+[Desktop Action 5inter]
 Exec=revideo-kdialog interpolate minterpolate %F
 Icon=interpolate
 Name=Interpolate
 Name[fr]=Interpoler
 
-[Desktop Action restore]
+[Desktop Action 6restore]
 Exec=revideo-kdialog restore nlmeans %F
 Icon=image-denoise-symbolic
 Name=Restore
 Name[fr]=Restaurer
 
-[Desktop Action deinterlace]
+[Desktop Action 7deinterlace]
 Exec=revideo-kdialog deinterlace %F
 Icon=entries-unlinked-symbolic
 Name=De-Interlace
 Name[fr]=Désentrelacer
 
-[Desktop Action audio_split]
+[Desktop Action 8transcript]
+Exec=revideo-kdialog transcript %F
+Icon=media-view-subtitles-symbolic
+Name=Transcript
+Name[fr]=Transcripter
+
+[Desktop Action 90audio_split]
 Exec=revideo-kdialog audio_split %F
 Icon=music-playlist-symbolic
 Name=Split Audio
@@ -84,13 +84,13 @@ Name[fr]=Séparer l'audio
 
 ################################################################################
 
-[Desktop Action add_music]
+[Desktop Action 92add_music]
 Exec=revideo-kdialog add_music %F
 Icon=music-artist-symbolic
 Name=Add Music
 Name[fr]=Ajouter une musique
 
-[Desktop Action add_watermark]
+[Desktop Action 93add_watermark]
 Exec=revideo-kdialog add_watermark %F
 Icon=tool_pen
 Name=Add Watermark
@@ -98,13 +98,13 @@ Name[fr]=Ajouter un watermark
 
 ################################################################################
 
-[Desktop Action sepia]
+[Desktop Action 95sepia]
 Exec=revideo-kdialog sepia %F
 Icon=color-management
 Name=Sepia Tone
 Name[fr]=Filtre sépia
 
-[Desktop Action gray]
+[Desktop Action 96gray]
 Exec=revideo-kdialog gray %F
 Icon=image-grayscale-symbolic
 Name=Grayscale
