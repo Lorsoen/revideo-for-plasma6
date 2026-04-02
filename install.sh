@@ -256,7 +256,7 @@ func_install () {
         func_install_required
 
         # give installation type tools actions
-        sed -i '/Actions=/ s/.*/Actions=_SEPARATOR_;1disassemble_jpg;2disassemble_png;3disassemble_tracks;_SEPARATOR_;5inter;6restore;7deinterlace;8transcript;90audio_split;_SEPARATOR_;92add_music;93add_watermark;_SEPARATOR_;95sepia;96gray/' \
+        sed -i '/Actions=/ s/.*/Actions=1disassemble_jpg;2disassemble_png;3disassemble_tracks;4SEPARATOR;5inter;6restore;7deinterlace;8transcript;90audio_split;91SEPARATOR;92add_music;93add_watermark;94SEPARATOR;95sepia;96gray/' \
         ${servicemenu_dir}/revideo-tools.desktop
 
         ;;
@@ -267,7 +267,7 @@ func_install () {
         func_install_required
 
         # give installation type tools actions
-        sed -i '/Actions=/ s/.*/Actions=_SEPARATOR_;1disassemble_jpg;2disassemble_png;3disassemble_tracks;_SEPARATOR_;5inter;6restore;7deinterlace;8transcript;90audio_split;_SEPARATOR_;92add_music;93add_watermark;_SEPARATOR_;95sepia;96gray/' \
+        sed -i '/Actions=/ s/.*/Actions=1disassemble_jpg;2disassemble_png;3disassemble_tracks;4SEPARATOR;5inter;6restore;7deinterlace;8transcript;90audio_split;91SEPARATOR;92add_music;93add_watermark;94SEPARATOR;95sepia;96gray/' \
         ${servicemenu_dir}/revideo-tools.desktop
 
         # install extra dependencies
@@ -291,7 +291,7 @@ func_install () {
         func_install_required
 
         # give installation type tools actions
-        sed -i '/Actions=/ s/.*/Actions=_SEPARATOR_;1disassemble_jpg;2disassemble_png;3disassemble_tracks;_SEPARATOR_;5inter;6restore;7deinterlace;8transcript;90audio_split;_SEPARATOR_;92add_music;93add_watermark;_SEPARATOR_;95sepia;96gray/' \
+        sed -i '/Actions=/ s/.*/Actions=1disassemble_jpg;2disassemble_png;3disassemble_tracks;4SEPARATOR;5inter;6restore;7deinterlace;8transcript;90audio_split;91SEPARATOR;92add_music;93add_watermark;94SEPARATOR;95sepia;96gray/' \
         ${servicemenu_dir}/revideo-tools.desktop
 
         # install extra dependencies

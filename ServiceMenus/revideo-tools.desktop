@@ -16,9 +16,10 @@
 # 	You should have received a copy of the GNU General Public License
 # 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+#   HOW THE FUCK DOES SEPARATORS FUCKING WORK, FUUUUUUCK (Todo)
 
 [Desktop Entry]
-Actions=1disassemble_jpg;2disassemble_png;3disassemble_tracks;_SEPARATOR_;5inter;6restore;7deinterlace;8transcript;90audio_split;_SEPARATOR_;92add_music;93add_watermark;_SEPARATOR_;95sepia;96gray
+Actions=1disassemble_jpg;2disassemble_png;3disassemble_tracks;4SEPARATOR;5inter;6restore;7deinterlace;8transcript;90audio_split;91SEPARATOR;92add_music;93add_watermark;94SEPARATOR;95sepia;96gray
 MimeType=video/*
 X-KDE-Priority=TopLevel
 Name=ReVideo tools service menu
